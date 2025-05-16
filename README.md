@@ -1,5 +1,5 @@
 # AIAssistedAutoTests
-Currently, this includes a Python file that can run Test #6 (APM demo status tracking) end-to-end with no user interaction.
+Currently, this includes a Python file that can run Test #6 (from the APM demo status tracking Quip file) end-to-end with no user interaction. The directory also includes a `JSInjections` folder, which includes the scripts that are added to the `.evaluate` function in browser-use.
 
 ## Quick Start
 1. Run `pip install browser-use` to install browser-use
