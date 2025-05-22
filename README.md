@@ -1,16 +1,22 @@
 # AIAssistedAutoTests
-Currently, this includes a Python file that can run Test #6 (from the APM demo status tracking Quip file) end-to-end with no user interaction. The directory also includes a `JSInjections` folder, which includes the scripts that are added to the `.evaluate` function in browser-use.
+Currently, this includes a Python file that can run Test #6 (from the APM demo status tracking Quip file) end-to-end with no user interaction.
+
+The directory also includes a `JSInjections` folder, which includes the scripts that are added to the `.evaluate` function in browser-use.
 
 ## Quick Start
-1. Run `pip install browser-use` to install browser-use
+1. Run `mwinit` to generate new credentials  
 
-2. Run `pip install playwright` to install PlayWright
+2. Run `ada credentials update --account=<apm-demo1_account_id> --provider=isengard --once --role=<Role>`
 
-3. Run the file with `python Test6.py`
+3. Run `pip install browser-use` to install browser-use
+
+4. Run `pip install playwright` to install PlayWright
+
+5. Run the file with `python Test6.py`
 
 ## Debugging
 
-You may encounter an error stating `[browser] Failed to initialize Playwright browser: To start chrome in Debug mode, you need to close all existing Chrome instances and try again otherwise we can not connect to the instance.`
+If you use your own `browser_binary_path`, you may encounter an error stating `[browser] Failed to initialize Playwright browser: To start chrome in Debug mode, you need to close all existing Chrome instances and try again otherwise we can not connect to the instance.`
 
 If quitting your current Chrome instance does not resolve this, you can create a temporary folder which contains your user information and credentials and run Chrome on that. You will also need to include debugging on port 9222.
 
