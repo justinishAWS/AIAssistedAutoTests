@@ -26,8 +26,6 @@ function clickMaxGraphPoint(chartPosition, checkboxPosition) {
   const checkboxHoverX = checkboxBounds.left + checkboxBounds.width / 2;
   const checkboxHoverY = checkboxBounds.top + checkboxBounds.height / 2;
 
-  console.log("Checkbox Coordinates:", checkboxHoverX, checkboxHoverY);
-
   const checkboxHoverEvent = new MouseEvent("mousemove", {
     clientX: checkboxHoverX,
     clientY: checkboxHoverY,
@@ -56,8 +54,6 @@ function clickMaxGraphPoint(chartPosition, checkboxPosition) {
 
   // Get the <rect> element within this chart. This will help us hover over the dynamic part
   const eventLayer = chart.querySelector(EVENT_LAYER_SELECTOR);
-
-  console.log(eventLayer);
 
   // Get the position of this object relative to the viewport (https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect)
   const rect = eventLayer.getBoundingClientRect();
@@ -105,13 +101,9 @@ function clickMaxGraphPoint(chartPosition, checkboxPosition) {
 
   waitForLowestCyElement().then((element) => {
     if (element) {
-      console.log("Element with the lowest `cy` value:", element);
-
       const elementRect = element.getBoundingClientRect();
       const elementX = elementRect.left + elementRect.width / 2;
       const elementY = elementRect.top + elementRect.height / 2;
-
-      console.log(`Hovering over coordinates: X: ${elementX}, Y: ${elementY}`);
 
       const hoverEvent = new MouseEvent("mousemove", {
         clientX: elementX,
@@ -122,7 +114,6 @@ function clickMaxGraphPoint(chartPosition, checkboxPosition) {
       });
 
       element.dispatchEvent(hoverEvent);
-      console.log("Hover event dispatched to:", element);
       clickDataPoint(DATA_POINT_SELECTOR);
     } else {
       console.warn("No element with a `cy` value found.");
@@ -135,8 +126,6 @@ function clickMaxGraphPoint(chartPosition, checkboxPosition) {
       const allDatapoints = iframeDoc.querySelectorAll(ALL_DATA_POINT_SELECTOR);
 
       if (allDatapoints.length > 0) {
-        console.log("Found datapoints:", allDatapoints);
-
         let minCy = Infinity;
         let minCyElement = null;
 
@@ -148,11 +137,9 @@ function clickMaxGraphPoint(chartPosition, checkboxPosition) {
           }
         });
 
-        console.log(`Lowest cy value: ${minCy}`);
         return minCyElement;
       }
 
-      console.log(`Retry ${i + 1}: No datapoints found, waiting...`);
       await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY));
     }
 
@@ -176,13 +163,9 @@ function clickMaxGraphPoint(chartPosition, checkboxPosition) {
           continue;
         }
 
-        console.log(`Attempt ${attempt}: Datapoint found:`, datapoint);
-
         // Parse the x/y-coordinates from string to float
         const cx = parseFloat(datapoint.getAttribute("cx"));
         const cy = parseFloat(datapoint.getAttribute("cy"));
-
-        console.log("Circle center coordinates:", cx, cy);
 
         // Sometimes, the datapoint is not correctly found. If this is the case, try again
         if (isNaN(cx) || isNaN(cy)) {
@@ -224,7 +207,6 @@ function clickMaxGraphPoint(chartPosition, checkboxPosition) {
         // Send this hover event to the <circle> datapoint object
         datapoint.dispatchEvent(clickEvent);
 
-        console.log(`Attempt ${attempt}: Click dispatched to`, datapoint);
         return; // If this was successful, you can exit this loop
       } catch (error) {
         console.warn(`Attempt ${attempt}: Error occurred - ${error.message}`);
