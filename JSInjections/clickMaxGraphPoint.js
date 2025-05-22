@@ -1,10 +1,8 @@
-// NOTE: Can remove console.log() statements before moving to .evaluate() function
-
 /**
  * Selectors taken from
  * https://code.amazon.com/packages/PuppetryTests-CloudWatchConsole/blobs/be137a4624e00e12b01edf31b8c5799e5a2cb454/--/src/models/metrics-polaris/metrics-page.js
  */
-() => {
+function clickMaxGraphPoint(chartPosition, checkboxPosition) {
   const TRIAGE_CHART_SELECTOR = '[data-testid="triage-chart"]';
   const LEADER_BOARD_DATA_POINT_SELECTOR = "circle.leaderboard-datapoint";
   const EVENT_LAYER_SELECTOR = ".event-layer";
@@ -23,7 +21,7 @@
   // Each graph has 2+ lines graphed. To ensure the correct line is selected, we remove the other plot
   const checkboxes = iframeDoc.querySelectorAll("rect.legend-checkbox");
 
-  const checkbox = checkboxes[6]; // PARAM
+  const checkbox = checkboxes[checkboxPosition]; // PARAM (6)
   const checkboxBounds = checkbox.getBoundingClientRect();
   const checkboxHoverX = checkboxBounds.left + checkboxBounds.width / 2;
   const checkboxHoverY = checkboxBounds.top + checkboxBounds.height / 2;
@@ -54,7 +52,7 @@
   const charts = iframeDoc.querySelectorAll(TRIAGE_CHART_SELECTOR);
 
   // Currently, we know that we want to access the "Faults and Errors" graph on this page, but we should make this a parameter to pass in
-  const chart = charts[2];
+  const chart = charts[chartPosition]; // PARAM (2)
 
   // Get the <rect> element within this chart. This will help us hover over the dynamic part
   const eventLayer = chart.querySelector(EVENT_LAYER_SELECTOR);
@@ -242,4 +240,4 @@
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
   return "JavaScript injected successfully.";
-};
+}

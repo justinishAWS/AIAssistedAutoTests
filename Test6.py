@@ -1,24 +1,24 @@
 """
-Automated end-to-end test for Test #6 (APM demo status tracking) using Bedrock.
+Automated end-to-end test for Test #6 (from the APM demo status tracking) using Bedrock Claude 3.7 Sonnet.
 
-Ensure you have browser-use installed with `examples` extra, i.e. `uv install 'browser-use[examples]'`
-
-@dev Ensure AWS environment variables are set correctly for Bedrock access.
+@dev Ensure AWS environment variables are set correctly for Bedrock and CloudWatch access.
 """
 
 from browser_use.controller.service import Controller
 from browser_use.browser.browser import Browser, BrowserConfig
 from browser_use import ActionResult, Agent
-from pydantic import BaseModel
 import argparse
 import asyncio
 import os
 import sys
+import botocore.session
+import requests
+import urllib.parse
+import json
 
 import boto3
 from botocore.config import Config
 from langchain_aws import ChatBedrockConverse
-from typing import Optional
 from browser_use.browser.context import BrowserContext
 
 # disable browser-use's built-in LLM API-key check
@@ -28,6 +28,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 controller = Controller()
 
+# Define custom actions for controller
 @controller.action(
     'Access the graph and open the popup'
 )
@@ -39,8 +40,62 @@ async def bounding_box(browser: BrowserContext):
     with open(js_file_path, 'r') as file:
         js_code = file.read()
 
-    logs = await page.evaluate(js_code)
+    # TODO: Determine how to update prompt to pass specific parameters into actions
+    args = {
+        "chartPosition": 2,
+        "checkboxPosition": 6
+    }
+
+    logs = await page.evaluate(f"""
+        (args) => {{
+            {js_code}
+            return clickMaxGraphPoint(args.chartPosition, args.checkboxPosition);
+        }}
+        """, args)
     return ActionResult(extracted_content=logs, include_in_memory=False)
+
+@controller.action(
+    'Authenticate and open the link'
+)
+async def authentication_open():
+    session = botocore.session.get_session()
+    creds = session.get_credentials().get_frozen_credentials()
+
+    session_dict = {
+        "sessionId": creds.access_key,
+        "sessionKey": creds.secret_key,
+        "sessionToken": creds.token,
+    }
+
+    session_json = urllib.parse.quote(json.dumps(session_dict))
+    signin_token_url = f"https://signin.aws.amazon.com/federation?Action=getSigninToken&Session={session_json}"
+    signin_token_response = requests.get(signin_token_url)
+    signin_token = signin_token_response.json()["SigninToken"]
+
+    destination = "https://console.aws.amazon.com/cloudwatch/home"
+    login_url = (
+        "https://signin.aws.amazon.com/federation"
+        f"?Action=login"
+        f"&Issuer=my-script"
+        f"&Destination={urllib.parse.quote(destination)}"
+        f"&SigninToken={signin_token}"
+    )
+
+    # Current link is too long for browser-use to navigate to, so we need to shorten it
+    def shorten_url(long_url):
+        api_url = f"https://tinyurl.com/api-create.php?url={urllib.parse.quote(long_url)}"
+        response = requests.get(api_url)
+        return response.text
+
+    short_url = shorten_url(login_url)
+    return short_url
+
+@controller.action(
+    'test result passed'
+)
+async def test_result():
+    # TODO: When access is granted to publish metrics, add functionality to publish metric
+    print("test result passed")
 
 def get_llm():
     config = Config(retries={'max_attempts': 10, 'mode': 'adaptive'})
@@ -48,19 +103,27 @@ def get_llm():
         'bedrock-runtime', region_name='us-east-1', config=config)
 
     return ChatBedrockConverse(
-        model_id='anthropic.claude-3-5-sonnet-20240620-v1:0',
+        model_id='arn:aws:bedrock:us-east-1:140023401067:inference-profile/us.anthropic.claude-3-7-sonnet-20250219-v1:0',
         temperature=0.0,
         max_tokens=None,
         client=bedrock_client,
+        provider='Antropic'
     )
 
 task = """
-        1. Navigate to https://us-east-1.console.aws.amazon.com/cloudwatch/home?region=us-east-1#application-signals:services/Environment%3Deks%3Ademo%2Fdefault%26Name%3Dvisits-service-java%26Type%3DService/operations?selectedOperation=POST+%2Fowners%2F%7BownerId%7D%2Fpets%2F%7BpetId%7D%2Fvisits
-        2. Access the graph and open the popup
-        3. In the right panel, click the first link under "Trace ID".
-        4. Wait a few seconds for the page to render. Under "visits-service-java AWS::EKS::Container", click on the row with "visits-service-java" and wait a few seconds
-        5. In the right panel, click the "Exceptions" button next to the "Metadata" button.
-        6. Look for the messge "The level of configured provisioned throughput for the table was exceeded.". If this is there, notify me with a checkmark and if not, notify me with an X.
+        "Authenticate and open the link"
+        "Open this link"
+        "In the left panel, under Application Signals, click Services"
+        "In the search field with placeholder text 'Filter services and resources by text, property or value', type 'visits-service-java' and press Enter."
+        "Click the hyperlink 'visits-service-java' in the 'Services' list in the main panel."
+        "Click the 'Service operations' button."
+        "In the search field under 'Service operations' type 'POST /owners/*/pets/{petId}/visits' and press Enter."
+        "Access the graph and open the popup."
+        "In the right panel, click the first link under 'Trace ID'."
+        "Wait a few seconds for the page to render. Under 'visits-service-java AWS::EKS::Container', click on the row with 'visits-service-java' and wait a few seconds"
+        "In the right panel, click right arrow."
+        "In the right panel, click the 'Exceptions' button."
+        "Look for the message 'The level of configured provisioned throughput for the table was exceeded.' and if it is there, the test result passed"
         """
 
 parser = argparse.ArgumentParser()
@@ -72,7 +135,7 @@ llm = get_llm()
 
 browser = Browser(
     config=BrowserConfig(
-        browser_binary_path="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+        # browser_binary_path="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
         # headless=True,
     )
 )
@@ -85,10 +148,8 @@ agent = Agent(
     validate_output=True,
 )
 
-
 async def main():
-    history = await agent.run(max_steps=100)
-    print(history.action_results())
+    await agent.run(max_steps=100)
     await browser.close()
 
 asyncio.run(main())
