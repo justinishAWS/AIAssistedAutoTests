@@ -101,6 +101,7 @@ async def authentication_open():
 async def test_result():
     # TODO: When access is granted to publish metrics, add functionality to publish metric
     print("test result passed")
+    return ActionResult(extracted_content="Test result passed. You can exit now.", is_done=True)
 
 def get_llm():
     config = Config(retries={'max_attempts': 10, 'mode': 'adaptive'})
