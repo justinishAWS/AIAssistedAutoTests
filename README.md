@@ -1,7 +1,7 @@
 # AIAssistedAutoTests
-Currently, this includes a Python file that can run Test #6 (from the APM demo status tracking Quip file) end-to-end with no user interaction.
+This can run Test #6 (from the APM demo status tracking Quip file) end-to-end with no user interaction.
 
-The directory also includes a `JSInjections` folder, which includes the scripts that are added to the `.evaluate` function in browser-use.
+We utilize custom Actions to authenticate and federate an AWS link automatically and inject JavaScript code to access metric graphs.
 
 ## Quick Start
 1. Run `mwinit` to generate new credentials  
