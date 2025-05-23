@@ -1,12 +1,9 @@
 """
 Automated end-to-end test for Test #6 (from the APM demo status tracking) using Bedrock Claude 3.7 Sonnet.
 
-@dev Ensure AWS environment variables are set correctly for Bedrock and CloudWatch access.
+@dev Ensure AWS environment variables are set correctly for Console (Bedrock and CloudWatch) access.
 """
 
-from browser_use.controller.service import Controller
-from browser_use.browser.browser import Browser, BrowserConfig
-from browser_use import ActionResult, Agent
 import argparse
 import asyncio
 import os
@@ -15,11 +12,16 @@ import botocore.session
 import requests
 import urllib.parse
 import json
-
 import boto3
+
 from botocore.config import Config
 from langchain_aws import ChatBedrockConverse
 from browser_use.browser.context import BrowserContext
+from pydantic import BaseModel
+from typing import Any
+from browser_use.controller.service import Controller
+from browser_use.browser.browser import Browser, BrowserConfig
+from browser_use import ActionResult, Agent
 
 # disable browser-use's built-in LLM API-key check
 os.environ["SKIP_LLM_API_KEY_VERIFICATION"] = "True"
@@ -28,11 +30,15 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 controller = Controller()
 
-# Define custom actions for controller
+class PositionParameters(BaseModel):
+     x: Any # chartPosition
+     y: Any # checkboxPosition
+
 @controller.action(
-    'Access the graph and open the popup'
+    'Access the graph and open the popup',
+    param_model=PositionParameters
 )
-async def bounding_box(browser: BrowserContext):
+async def bounding_box(params: PositionParameters, browser: BrowserContext):
     page = await browser.get_current_page()
 
     js_file_path = os.path.join(os.path.dirname(
@@ -40,10 +46,9 @@ async def bounding_box(browser: BrowserContext):
     with open(js_file_path, 'r') as file:
         js_code = file.read()
 
-    # TODO: Determine how to update prompt to pass specific parameters into actions
     args = {
-        "chartPosition": 2,
-        "checkboxPosition": 6
+        "chartPosition": int(params.x),
+        "checkboxPosition": int(params.y)
     }
 
     logs = await page.evaluate(f"""
@@ -110,7 +115,7 @@ def get_llm():
         provider='Antropic'
     )
 
-task = """
+task = (
         "Authenticate and open the link"
         "Open this link"
         "In the left panel, under Application Signals, click Services"
@@ -118,13 +123,13 @@ task = """
         "Click the hyperlink 'visits-service-java' in the 'Services' list in the main panel."
         "Click the 'Service operations' button."
         "In the search field under 'Service operations' type 'POST /owners/*/pets/{petId}/visits' and press Enter."
-        "Access the graph and open the popup."
+        "Access the graph and open the popup, pass in 2 and 6 as a parameters"
         "In the right panel, click the first link under 'Trace ID'."
         "Wait a few seconds for the page to render. Under 'visits-service-java AWS::EKS::Container', click on the row with 'visits-service-java' and wait a few seconds"
         "In the right panel, click right arrow."
         "In the right panel, click the 'Exceptions' button."
         "Look for the message 'The level of configured provisioned throughput for the table was exceeded.' and if it is there, the test result passed"
-        """
+)
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--query', type=str,
