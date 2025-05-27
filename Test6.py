@@ -34,6 +34,9 @@ class PositionParameters(BaseModel):
      x: Any # chartPosition
      y: Any # checkboxPosition
 
+class TestResult(BaseModel):
+    z: Any # result
+
 @controller.action(
     'Access the graph and open the popup',
     param_model=PositionParameters
@@ -96,12 +99,13 @@ async def authentication_open():
     return short_url
 
 @controller.action(
-    'test result passed'
+    'Test result status',
+    param_model=TestResult
 )
-async def test_result():
+async def test_result(params: TestResult):
     # TODO: When access is granted to publish metrics, add functionality to publish metric
-    print("test result passed")
-    return ActionResult(extracted_content="Test result passed. You can exit now.", is_done=True)
+    print(f"test result is {params.z}!!!")
+    return ActionResult(extracted_content="The task is COMPLETE - you can EXIT now. DO NOT conduct anymore steps!!!", is_done=True)
 
 def get_llm():
     config = Config(retries={'max_attempts': 10, 'mode': 'adaptive'})
@@ -116,21 +120,29 @@ def get_llm():
         provider='Antropic'
     )
 
-task = (
-        "Authenticate and open the link"
-        "Open this link"
-        "In the left panel, under Application Signals, click Services"
-        "In the search field with placeholder text 'Filter services and resources by text, property or value', type 'visits-service-java' and press Enter."
-        "Click the hyperlink 'visits-service-java' in the 'Services' list in the main panel."
-        "Click the 'Service operations' button."
-        "In the search field under 'Service operations' type 'POST /owners/*/pets/{petId}/visits' and press Enter."
-        "Access the graph and open the popup, pass in 2 and 6 as a parameters"
-        "In the right panel, click the first link under 'Trace ID'."
-        "Wait a few seconds for the page to render. Under 'visits-service-java AWS::EKS::Container', click on the row with 'visits-service-java' and wait a few seconds"
-        "In the right panel, click right arrow."
-        "In the right panel, click the 'Exceptions' button."
-        "Look for the message 'The level of configured provisioned throughput for the table was exceeded.' and if it is there, the test result passed"
-)
+task = """
+        Determine if the given test passed or failed with the following steps:
+
+        1. Authenticate and open the link.
+        2. Open this link.
+        3. In the left panel, under Application Signals, click 'Services'.
+        4. In the search field with placeholder text 'Filter services and resources by text, property or value', type 'visits-service-java' and press Enter.
+        5. Click the hyperlink 'visits-service-java' in the 'Services' list in the main panel.
+        6. Click the 'Service operations' button.
+        7. In the search field under 'Service operations' type 'POST /owners/*/pets/{petId}/visits' and press Enter.
+        8. Access the graph and open the popup, pass in 2 and 6 as a parameters.
+        9. In the right panel, click the first link under 'Trace ID'.
+        10. Wait a few seconds for the page to render. Under 'visits-service-java', click on the row with 'visits-service-java' and wait a few seconds.
+        11. In the right panel, click right arrow.
+        12. In the right panel, click the 'Exceptions' button.
+        13. Wait a few seconds.
+        14. Look for the message 'The level of configured provisioned throughput for the table was exceeded.'.
+
+        Considerations:
+        - If you make it to the end, the test result is passed. If ANY of these steps fail, the test result is failed. 
+
+        If this test fails, the task is COMPLETE. DO NOT conduct more steps!!!
+"""
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--query', type=str,
@@ -141,8 +153,7 @@ llm = get_llm()
 
 browser = Browser(
     config=BrowserConfig(
-        # browser_binary_path="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
-        # headless=True,
+        headless=True,
     )
 )
 
@@ -152,6 +163,7 @@ agent = Agent(
     controller=controller,
     browser=browser,
     validate_output=True,
+    extend_system_message="""REMEMBER it is ok if the test fails. When the test result is determined, DO NOT continue steps!!! JUST EXIT!!!"""
 )
 
 async def main():
