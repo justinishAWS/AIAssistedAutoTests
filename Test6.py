@@ -130,13 +130,14 @@ task = """
         5. Click the hyperlink 'visits-service-java' in the 'Services' list in the main panel.
         6. Click the 'Service operations' button.
         7. In the search field under 'Service operations' type 'POST /owners/*/pets/{petId}/visits' and press Enter.
-        8. Access the graph and open the popup, pass in 2 and 6 as a parameters.
-        9. In the right panel, click the first link under 'Trace ID'.
-        10. Wait a few seconds for the page to render. Under 'visits-service-java', click on the row with 'visits-service-java' and wait a few seconds.
-        11. In the right panel, click right arrow.
-        12. In the right panel, click the 'Exceptions' button.
-        13. Wait a few seconds.
-        14. Look for the message 'The level of configured provisioned throughput for the table was exceeded.'.
+        8. Access the graph and open the popup, PASS in 2 and 6 as a PARAMETERS.
+        9. Wait a few seconds.
+        10. In the right panel, click the first link under 'Trace ID'.
+        11. Wait a few seconds for the page to render. Under 'visits-service-java', click on the row with 'visits-service-java' and wait a few seconds.
+        12. In the right panel, click right arrow.
+        13. In the right panel, click the 'Exceptions' button.
+        14. Wait a few seconds.
+        15. Look for the message 'The level of configured provisioned throughput for the table was exceeded.'.
 
         Considerations:
         - If you make it to the end, the test result is passed. If ANY of these steps fail, the test result is failed. 
