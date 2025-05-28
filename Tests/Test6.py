@@ -45,7 +45,7 @@ async def bounding_box(params: PositionParameters, browser: BrowserContext):
     page = await browser.get_current_page()
 
     js_file_path = os.path.join(os.path.dirname(
-        __file__), "JSInjections", "clickMaxGraphPoint.js")
+        __file__), "..", "JSInjections", "clickMaxGraphPoint.js")
     with open(js_file_path, 'r') as file:
         js_code = file.read()
 
@@ -133,11 +133,13 @@ task = """
         8. Access the graph and open the popup, PASS in 2 and 6 as a PARAMETERS.
         9. Wait a few seconds.
         10. In the right panel, click the first link under 'Trace ID'.
-        11. Wait a few seconds for the page to render. Under 'visits-service-java', click on the row with 'visits-service-java' and wait a few seconds.
-        12. In the right panel, click right arrow.
-        13. In the right panel, click the 'Exceptions' button.
-        14. Wait a few seconds.
-        15. Look for the message 'The level of configured provisioned throughput for the table was exceeded.'.
+        11. Wait a few seconds for the page to render. 
+        12. Scroll down a page.
+        13. Under 'visits-service-java', click on the row with 'visits-service-java' and wait a few seconds.
+        14. In the right panel, click right arrow.
+        15. In the right panel, click the 'Exceptions' button.
+        16. Wait a few seconds.
+        17. Look for the message 'The level of configured provisioned throughput for the table was exceeded.'.
 
         Considerations:
         - If you make it to the end, the test result is passed. If ANY of these steps fail, the test result is failed. 
@@ -157,7 +159,7 @@ browser = Browser(
         headless=True,
     )
 )
-
+# Click 'Open Segment details panel' button in the top right corner
 agent = Agent(
     task=args.query,
     llm=llm,
