@@ -80,7 +80,7 @@ async def authentication_open():
     signin_token_response = requests.get(signin_token_url)
     signin_token = signin_token_response.json()["SigninToken"]
 
-    destination = "https://console.aws.amazon.com/cloudwatch/home"
+    destination = "https://us-west-2.console.aws.amazon.com/cloudwatch/home?region=us-west-2#home:"
     login_url = (
         "https://signin.aws.amazon.com/federation"
         f"?Action=login"
@@ -110,14 +110,15 @@ async def test_result(params: TestResult):
 def get_llm():
     config = Config(retries={'max_attempts': 10, 'mode': 'adaptive'})
     bedrock_client = boto3.client(
-        'bedrock-runtime', region_name='us-east-1', config=config)
+        'bedrock-runtime', region_name='us-west-2', config=config)
 
     return ChatBedrockConverse(
-        model_id='arn:aws:bedrock:us-east-1:140023401067:inference-profile/us.anthropic.claude-3-7-sonnet-20250219-v1:0',
+        model_id='arn:aws:bedrock:us-west-2:868155213681:inference-profile/us.anthropic.claude-3-7-sonnet-20250219-v1:0',
         temperature=0.0,
         max_tokens=None,
         client=bedrock_client,
-        provider='Antropic'
+        provider='Antropic',
+        cache=False
     )
 
 task = """
@@ -135,11 +136,12 @@ task = """
         10. In the right panel, click the first link under 'Trace ID'.
         11. Wait a few seconds for the page to render. 
         12. Scroll down a page.
-        13. Under 'visits-service-java', click on the row with 'visits-service-java' and wait a few seconds.
-        14. In the right panel, click right arrow.
-        15. In the right panel, click the 'Exceptions' button.
-        16. Wait a few seconds.
-        17. Look for the message 'The level of configured provisioned throughput for the table was exceeded.'.
+        13. Close the 'pet-clinic-frontend-java' dropdown.
+        14. Inside the 'visits-service-java' dropdown, click on the row with 'visits-service-java'. MAKE SURE THAT IT IS INSIDE THE 'visits-service-java' DROPDOWN!!!
+        15. In the right panel, click right arrow.
+        16. In the right panel, click the 'Exceptions' button.
+        17. Wait a few seconds.
+        18. Look for the message 'The level of configured provisioned throughput for the table was exceeded.'.
 
         Considerations:
         - If you make it to the end, the test result is passed. If ANY of these steps fail, the test result is failed. 
@@ -159,7 +161,7 @@ browser = Browser(
         headless=True,
     )
 )
-# Click 'Open Segment details panel' button in the top right corner
+
 agent = Agent(
     task=args.query,
     llm=llm,
