@@ -16,6 +16,22 @@ To try running this on your local machine, ensure that you have at least `ReadOn
 
 6. Run the file with `python Test6.py`
 
+## Debugging
+
+If you want to view the visual browser UI, comment out the line `headless=True` in the `Browser` object.
+
+To debug in headless mode, add the following code to your `main()` to save screenshots of each step to your directory:
+
+```python
+history = await agent.run(max_steps=100)
+for i, screenshot in enumerate(history.screenshots()):
+    with open(f"screenshot_{i}.png", "wb") as f:
+        f.write(base64.b64decode(screenshot))
+```
+
+
+Note: Also ensure to add `import base64` at the top of the file.
+
 ## Prompt Engineering
 
 If you plan to implement additional tests or use browser-use in other areas, to write a successful task, there are three important features to follow to create your prompt:
