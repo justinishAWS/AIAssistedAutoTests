@@ -107,6 +107,25 @@ async def test_result(params: TestResult):
     print(f"test result is {params.z}!!!")
     return ActionResult(extracted_content="The task is COMPLETE - you can EXIT now. DO NOT conduct anymore steps!!!", is_done=True)
 
+@controller.action(
+    'Scroll injection down',
+)
+async def scrolling(browser: BrowserContext):
+    page = await browser.get_current_page()
+
+    js_file_path = os.path.join(os.path.dirname(
+        __file__), "..", "JSInjections", "scrollDown.js")
+    with open(js_file_path, 'r') as file:
+        js_code = file.read()
+
+    logs = await page.evaluate(f"""
+        () => {{
+            {js_code}
+            return scrollDown();
+        }}
+        """, args)
+    return ActionResult(extracted_content=logs, include_in_memory=False)
+
 def get_llm():
     config = Config(retries={'max_attempts': 10, 'mode': 'adaptive'})
     bedrock_client = boto3.client(
@@ -135,7 +154,7 @@ task = """
         9. Wait a few seconds.
         10. In the right panel, click the first link under 'Trace ID'.
         11. Wait a few seconds for the page to render. 
-        12. Scroll down a page.
+        12. Scroll injection down.
         13. Close the 'pet-clinic-frontend-java' dropdown.
         14. Inside the 'visits-service-java' dropdown, click on the row with 'visits-service-java'. MAKE SURE THAT IT IS INSIDE THE 'visits-service-java' DROPDOWN!!!
         15. In the right panel, click right arrow.
