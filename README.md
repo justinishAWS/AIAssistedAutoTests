@@ -1,5 +1,5 @@
 # AIAssistedAutoTests
-This can run Test #6 (from the APM demo status tracking Quip file) end-to-end with no user interaction.
+This can run tests (from the APM demo status tracking Quip file) end-to-end with no user interaction.
 
 We utilize custom Actions to authenticate and federate an AWS link automatically and inject JavaScript code to access metric graphs.
 
