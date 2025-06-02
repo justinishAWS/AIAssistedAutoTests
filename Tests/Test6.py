@@ -149,7 +149,7 @@ task = """
         4. In the search field with placeholder text 'Filter services and resources by text, property or value', type 'visits-service-java' and press Enter.
         5. Click the hyperlink 'visits-service-java' in the 'Services' list in the main panel.
         6. Click the 'Service operations' button.
-        7. In the search field under 'Service operations' type 'POST /owners/*/pets/{petId}/visits' and press Enter.
+        7. In the search field under 'Service operations' type 'Name = POST /owners/{ownerId}/pets/{petId}/visits' and PRESS Enter.
         8. Access the graph and open the popup, PASS in 2 and 6 as a PARAMETERS.
         9. Wait a few seconds.
         10. In the right panel, click the first link under 'Trace ID'.
@@ -163,7 +163,7 @@ task = """
         18. Look for the message 'The level of configured provisioned throughput for the table was exceeded.'.
 
         Considerations:
-        - If you make it to the end, the test result is passed. If ANY of these steps fail, the test result is failed. 
+        - If you make it to the end, the test result is passed. If ANY of these steps fail, the test result is failed. Use the 'test_result' function for this.
 
         If this test fails, the task is COMPLETE. DO NOT conduct more steps!!!
 """
@@ -191,7 +191,7 @@ agent = Agent(
 )
 
 async def main():
-    await agent.run(max_steps=100)
+    await agent.run(max_steps=25)
     await browser.close()
 
 asyncio.run(main())
