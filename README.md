@@ -14,7 +14,7 @@ To try running this on your local machine, ensure that you have at least `ReadOn
 
 5. Run `pip install playwright` to install PlayWright
 
-6. Run the file with `python Test6.py`
+6. Run the file with `python TestX.py`
 
 ## Debugging
 
