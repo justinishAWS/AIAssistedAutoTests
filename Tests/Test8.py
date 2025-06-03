@@ -209,7 +209,7 @@ agent = Agent(
 )
 
 async def main():
-    agent.run(max_steps=25)
+    await agent.run(max_steps=25)
     await browser.close()
 
 asyncio.run(main())
