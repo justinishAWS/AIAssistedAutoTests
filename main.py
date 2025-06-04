@@ -122,18 +122,6 @@ def get_llm():
         cache=False
     )
 
-file_path = sys.argv[1]
-
-with open(file_path, "r", encoding="utf-8") as file:
-    task = file.read()
-
-llm = get_llm()
-
-browser = Browser(
-    config=BrowserConfig(
-        headless=True,
-    )
-)
 
 def authentication_open():
     session = botocore.session.get_session()
@@ -169,7 +157,20 @@ def authentication_open():
     return short_url
 
 async def main():
+    # Get test prompt file
+    file_path = sys.argv[1]
+    with open(file_path, "r", encoding="utf-8") as file:
+        task = file.read()
+
+    llm = get_llm()
     authenticated_url = authentication_open()
+
+    browser = Browser(
+        config=BrowserConfig(
+            headless=True,
+        )
+    )
+
     initial_actions = [
         {'open_tab': {'url': authenticated_url}}
     ]
