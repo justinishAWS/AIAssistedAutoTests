@@ -1,0 +1,23 @@
+Determine if the given test passed or failed with the following steps:
+
+1. In the left panel, under Application Signals, click 'Services'.
+2. In the search field with placeholder text 'Filter services and resources by text, property or value', type 'visits-service-java' and press Enter.
+3. Click the hyperlink 'visits-service-java' in the 'Services' list in the main panel.
+4. Click the 'Service operations' button.
+5. In the search field under 'Service operations' type 'Name = POST /owners/{ownerId}/pets/{petId}/visits' and PRESS Enter.
+6. Access the graph and open the popup, PASS in 2 and 6 as a PARAMETERS.
+7. Wait a few seconds.
+8. In the right panel, click the first link under 'Trace ID'.
+9. Wait a few seconds for the page to render. 
+10. Scroll injection down.
+11. Close the 'pet-clinic-frontend-java' dropdown.
+12. Inside the 'visits-service-java' dropdown, click on the row with 'visits-service-java'. MAKE SURE THAT IT IS INSIDE THE 'visits-service-java' DROPDOWN!!!
+13. In the right panel, click right arrow.
+14. In the right panel, click the 'Exceptions' button.
+15. Wait a few seconds.
+16. Look for the message 'The level of configured provisioned throughput for the table was exceeded.'.
+
+Considerations:
+- If you make it to the end, the test result is passed. If ANY of these steps fail, the test result is failed. Use the 'test_result' function for this.
+
+If this test fails, the task is COMPLETE. DO NOT conduct more steps!!!
