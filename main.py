@@ -21,6 +21,11 @@ from typing import Any
 from browser_use.controller.service import Controller
 from browser_use.browser.browser import Browser, BrowserConfig
 from browser_use import ActionResult, Agent
+from dotenv import load_dotenv
+
+load_dotenv()
+region = os.environ['AWS_REGION']
+account_id = os.environ['AWS_ACCOUNT_ID']
 
 # disable browser-use's built-in LLM API-key check
 os.environ["SKIP_LLM_API_KEY_VERIFICATION"] = "True"
@@ -111,10 +116,10 @@ async def click_node(browser: BrowserContext):
 def get_llm():
     config = Config(retries={'max_attempts': 10, 'mode': 'adaptive'})
     bedrock_client = boto3.client(
-        'bedrock-runtime', region_name='us-west-2', config=config)
+        'bedrock-runtime', region_name=region, config=config)
 
     return ChatBedrockConverse(
-        model_id='arn:aws:bedrock:us-west-2:868155213681:inference-profile/us.anthropic.claude-3-7-sonnet-20250219-v1:0',
+        model_id=f'arn:aws:bedrock:{region}:{account_id}:inference-profile/us.anthropic.claude-3-7-sonnet-20250219-v1:0',
         temperature=0.0,
         max_tokens=None,
         client=bedrock_client,
@@ -138,7 +143,7 @@ def authentication_open():
     signin_token_response = requests.get(signin_token_url)
     signin_token = signin_token_response.json()["SigninToken"]
 
-    destination = "https://us-west-2.console.aws.amazon.com/cloudwatch/home?region=us-west-2#home:"
+    destination = f"https://{region}.console.aws.amazon.com/cloudwatch/home?region={region}#home:"
     login_url = (
         "https://signin.aws.amazon.com/federation"
         f"?Action=login"
