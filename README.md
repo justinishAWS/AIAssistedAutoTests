@@ -14,7 +14,15 @@ To try running this on your local machine, ensure that you have at least `ReadOn
 
 5. Run `pip install playwright` to install PlayWright
 
-6. Run the file with `cd Tests` and `python TestX.py`
+6. Run the file with `python main.py Tests/TestX.txt`
+
+## Environment Variables
+To run this project, create a `.env` file in the root directory based on the provided `.env.example`:
+
+```
+AWS_REGION=<REGION>
+AWS_ACCOUNT_ID=<ACCOUNT_ID>
+```
 
 ## Debugging
 
