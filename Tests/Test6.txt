@@ -9,13 +9,11 @@ Determine if the given test passed or failed with the following steps:
 7. Wait a few seconds.
 8. In the right panel, click the first link under 'Trace ID'.
 9. Wait a few seconds for the page to render. 
-10. Scroll injection down.
-11. Close the 'pet-clinic-frontend-java' dropdown.
-12. Inside the 'visits-service-java' dropdown, click on the row with 'visits-service-java'. MAKE SURE THAT IT IS INSIDE THE 'visits-service-java' DROPDOWN!!!
-13. In the right panel, click right arrow.
-14. In the right panel, click the 'Exceptions' button.
-15. Wait a few seconds.
-16. Look for the message 'The level of configured provisioned throughput for the table was exceeded.'.
+10. Close the 'pet-clinic-frontend-java' dropdown.
+11. Inside the 'visits-service-java' dropdown, click on the row with 'visits-service-java'. MAKE SURE THAT IT IS INSIDE THE 'visits-service-java' DROPDOWN!!!
+12. In the right panel, click the 'Exceptions' button.
+13. Wait a few seconds.
+14. Look for the message 'The level of configured provisioned throughput for the table was exceeded.'.
 
 Considerations:
 - If you make it to the end, the test result is passed. If ANY of these steps fail, the test result is failed. Use the 'test_result' function for this.

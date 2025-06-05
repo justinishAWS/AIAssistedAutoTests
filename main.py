@@ -19,15 +19,16 @@ from browser_use.browser.context import BrowserContext
 from pydantic import BaseModel
 from typing import Any
 from browser_use.controller.service import Controller
-from browser_use.browser.browser import Browser, BrowserConfig
-from browser_use import ActionResult, Agent
+from browser_use import ActionResult, Agent, BrowserSession, BrowserProfile
 from dotenv import load_dotenv
+from browser_use.agent.memory import MemoryConfig
 
+# Load environment variables
 load_dotenv()
 region = os.environ['AWS_REGION']
 account_id = os.environ['AWS_ACCOUNT_ID']
 
-# disable browser-use's built-in LLM API-key check
+# Disable browser-use's built-in LLM API-key check
 os.environ["SKIP_LLM_API_KEY_VERIFICATION"] = "True"
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -76,25 +77,6 @@ async def test_result(params: TestResult):
     return ActionResult(extracted_content="The task is COMPLETE - you can EXIT now. DO NOT conduct anymore steps!!!", is_done=True)
 
 @controller.action(
-    'Scroll injection down',
-)
-async def scrolling(browser: BrowserContext):
-    page = await browser.get_current_page()
-
-    js_file_path = os.path.join(os.path.dirname(
-        __file__), "JSInjections", "scrollDown.js")
-    with open(js_file_path, 'r') as file:
-        js_code = file.read()
-
-    logs = await page.evaluate(f"""
-        () => {{
-            {js_code}
-            return scrollDown();
-        }}
-        """)
-    return ActionResult(extracted_content=logs, include_in_memory=False)
-
-@controller.action(
     'Access the node',
 )
 async def click_node(browser: BrowserContext):
@@ -127,7 +109,6 @@ def get_llm():
         cache=False
     )
 
-
 def authentication_open():
     session = botocore.session.get_session()
     creds = session.get_credentials().get_frozen_credentials()
@@ -152,14 +133,7 @@ def authentication_open():
         f"&SigninToken={signin_token}"
     )
 
-    # Current link is too long for browser-use to navigate to, so we need to shorten it
-    def shorten_url(long_url):
-        api_url = f"https://tinyurl.com/api-create.php?url={urllib.parse.quote(long_url)}"
-        response = requests.get(api_url)
-        return response.text
-
-    short_url = shorten_url(login_url)
-    return short_url
+    return login_url
 
 async def main():
     # Get test prompt file
@@ -170,10 +144,13 @@ async def main():
     llm = get_llm()
     authenticated_url = authentication_open()
 
-    browser = Browser(
-        config=BrowserConfig(
-            headless=True,
-        )
+    browser_profile = BrowserProfile(
+		headless=True,
+	)
+
+    browser_session = BrowserSession(
+        browser_profile=browser_profile,
+        viewport={'width': 2560, 'height': 1440},
     )
 
     initial_actions = [
@@ -185,12 +162,16 @@ async def main():
         initial_actions=initial_actions,
         llm=llm,
         controller=controller,
-        browser=browser,
+        browser_session=browser_session,
         validate_output=True,
-        extend_system_message="""REMEMBER it is ok if the test fails. When the test result is determined, DO NOT continue steps!!! JUST EXIT!!!"""
+        extend_system_message="""REMEMBER it is ok if the test fails. When the test result is determined, DO NOT continue steps!!! JUST EXIT!!!""",
+        memory_config=MemoryConfig(
+            llm_instance=llm,
+            memory_interval=15
+        )
     )
 
     await agent.run(max_steps=25)
-    await browser.close()
+    await browser_session.close()
 
 asyncio.run(main())

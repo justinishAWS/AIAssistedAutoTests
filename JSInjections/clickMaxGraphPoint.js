@@ -19,32 +19,34 @@ function clickMaxGraphPoint(chartPosition, checkboxPosition) {
   const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
 
   // Each graph has 2+ lines graphed. To ensure the correct line is selected, we remove the other plot
-  const checkboxes = iframeDoc.querySelectorAll("rect.legend-checkbox");
+  if (!iframeDoc.querySelector("g.legend.dimmable.legend-disabled")) {
+    const checkboxes = iframeDoc.querySelectorAll("rect.legend-checkbox");
 
-  const checkbox = checkboxes[checkboxPosition]; // PARAM (6)
-  const checkboxBounds = checkbox.getBoundingClientRect();
-  const checkboxHoverX = checkboxBounds.left + checkboxBounds.width / 2;
-  const checkboxHoverY = checkboxBounds.top + checkboxBounds.height / 2;
+    const checkbox = checkboxes[checkboxPosition]; // PARAM (6)
+    const checkboxBounds = checkbox.getBoundingClientRect();
+    const checkboxHoverX = checkboxBounds.left + checkboxBounds.width / 2;
+    const checkboxHoverY = checkboxBounds.top + checkboxBounds.height / 2;
 
-  const checkboxHoverEvent = new MouseEvent("mousemove", {
-    clientX: checkboxHoverX,
-    clientY: checkboxHoverY,
-    bubbles: true,
-    cancelable: true,
-    view: window,
-  });
+    const checkboxHoverEvent = new MouseEvent("mousemove", {
+      clientX: checkboxHoverX,
+      clientY: checkboxHoverY,
+      bubbles: true,
+      cancelable: true,
+      view: window,
+    });
 
-  checkbox.dispatchEvent(checkboxHoverEvent);
+    checkbox.dispatchEvent(checkboxHoverEvent);
 
-  const checkboxClickEvent = new MouseEvent("click", {
-    clientX: checkboxHoverX,
-    clientY: checkboxHoverY,
-    bubbles: true,
-    cancelable: true,
-    view: window,
-  });
+    const checkboxClickEvent = new MouseEvent("click", {
+      clientX: checkboxHoverX,
+      clientY: checkboxHoverY,
+      bubbles: true,
+      cancelable: true,
+      view: window,
+    });
 
-  checkbox.dispatchEvent(checkboxClickEvent);
+    checkbox.dispatchEvent(checkboxClickEvent);
+  }
 
   // This will query all of the graphs in the iFrame
   const charts = iframeDoc.querySelectorAll(TRIAGE_CHART_SELECTOR);
@@ -206,8 +208,14 @@ function clickMaxGraphPoint(chartPosition, checkboxPosition) {
         });
         // Send this hover event to the <circle> datapoint object
         datapoint.dispatchEvent(clickEvent);
-
-        return; // If this was successful, you can exit this loop
+        await wait(2000);
+        if (
+          !iframeDoc.body.textContent.includes(
+            "No spans with any faults were found for the selected time range."
+          )
+        ) {
+          return; // If this was successful, you can exit this loop
+        }
       } catch (error) {
         console.warn(`Attempt ${attempt}: Error occurred - ${error.message}`);
       }
