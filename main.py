@@ -21,7 +21,6 @@ from typing import Any
 from browser_use.controller.service import Controller
 from browser_use import ActionResult, Agent, BrowserSession, BrowserProfile
 from dotenv import load_dotenv
-from browser_use.agent.memory import MemoryConfig
 
 # Load environment variables
 load_dotenv()
@@ -41,6 +40,9 @@ class PositionParameters(BaseModel):
 
 class TestResult(BaseModel):
     z: Any # result
+
+class NodeId(BaseModel):
+    a: Any # nodeId
 
 @controller.action(
     'Access the graph and open the popup',
@@ -78,21 +80,52 @@ async def test_result(params: TestResult):
 
 @controller.action(
     'Access the node',
+    param_model=NodeId
 )
-async def click_node(browser: BrowserContext):
+async def click_node(params: NodeId, browser: BrowserContext):
     page = await browser.get_current_page()
 
     js_file_path = os.path.join(os.path.dirname(
-        __file__), "JSInjections", "clickSQSNode.js")
+        __file__), "JSInjections", "clickNode.js")
     with open(js_file_path, 'r') as file:
         js_code = file.read()
 
+    args = {
+        "nodeId": params.a
+    }
+    print(args)
+
     logs = await page.evaluate(f"""
-        () => {{
+        (args) => {{
             {js_code}
-            return clickSQSNode();
+            return clickNode(args.nodeId);
         }}
-        """)
+        """, args)
+    print(logs)
+    return ActionResult(extracted_content=logs, include_in_memory=True)
+
+@controller.action(
+    'Expand all the options to show all nodes',
+    param_model=NodeId
+)
+async def expand_node_dropdown(params: NodeId, browser: BrowserContext):
+    page = await browser.get_current_page()
+
+    js_file_path = os.path.join(os.path.dirname(
+        __file__), "JSInjections", "expandServiceMapNode.js")
+    with open(js_file_path, 'r') as file:
+        js_code = file.read()
+
+    args = {
+        "nodeId": params.a
+    }
+
+    logs = await page.evaluate(f"""
+        (args) => {{
+            {js_code}
+            return expandServiceMapNode(args.nodeId);
+        }}
+        """, args)
     return ActionResult(extracted_content=logs, include_in_memory=True)
 
 def get_llm():
@@ -165,10 +198,7 @@ async def main():
         browser_session=browser_session,
         validate_output=True,
         extend_system_message="""REMEMBER it is ok if the test fails. When the test result is determined, DO NOT continue steps!!! JUST EXIT!!!""",
-        memory_config=MemoryConfig(
-            llm_instance=llm,
-            memory_interval=15
-        )
+        enable_memory=False,
     )
 
     await agent.run(max_steps=25)

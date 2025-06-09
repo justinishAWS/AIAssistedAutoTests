@@ -1,7 +1,7 @@
 Determine if the given test passed or failed with the following steps:
 
 1. In the left panel, under Application Signals, click 'Service Map'.
-2. Access the node.
+2. Access the node, PASS in "SQS" (MAKE SURE IT IS ALL CAPITALS) as the PARAMETER.
 3. Wait a few seconds.
 4. Click on the bottom link in the 'Top three paths by error rate' dropdown in the right panel.
 5. Click the 'Dependencies' button.
@@ -9,11 +9,9 @@ Determine if the given test passed or failed with the following steps:
 7. Wait a few seconds.
 8. In the right panel, click the first link under 'Trace ID'.
 9. Wait a few seconds for the page to render.
-10. Close the 'Trace details' dropdown
-11. Close the 'SQS AWS::SQS:Queue' dropdown.
-12. Inside the 'customers-service-java' dropdown, click on the row with 'SQS PurgeQueue' (the last row in this dropdown).
-13. In the right panel, click the 'Exceptions' button.
-14. Look for the EXACT message 'Only one PurgeQueue operation on apm_test is allowed every 60 seconds.'.
+10. In the top right corner, open segment details panel IF it is not already expanded.
+11. In the right panel, click the 'Exceptions' button.
+12. Look for the EXACT message 'Only one PurgeQueue operation on apm_test is allowed every 60 seconds.'.
 
 Considerations:
 - If you make it to the end, the test result is passed. If ANY of these steps fail, the test result is failed.

@@ -1,9 +1,9 @@
-function clickSQSNode() {
+function clickNode(testid) {
   const iframe = document.querySelector(`iframe#microConsole-Pulse`);
   const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
 
   setTimeout(() => {
-    const node = iframeDoc.querySelector(`g[data-testid="group:AWS::SQS"]`);
+    const node = iframeDoc.querySelector(`g[data-testid="group:AWS::${testid}"]`);
     if (node) {
       const nodeBounds = node.getBoundingClientRect();
       const nodeHoverX = nodeBounds.left + nodeBounds.width / 2;
@@ -28,7 +28,9 @@ function clickSQSNode() {
       });
 
       node.dispatchEvent(nodeClickEvent);
-    } else console.error("Node not found");
+    } else {
+      return "JavaScript not injected. Try again."
+    }
   }, 1000);
 
   return "JavaScript injected successfully.";
