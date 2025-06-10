@@ -22,6 +22,7 @@ from typing import Any
 from browser_use.controller.service import Controller
 from browser_use import ActionResult, Agent, BrowserSession, BrowserProfile
 from dotenv import load_dotenv
+from langchain_core.rate_limiters import InMemoryRateLimiter
 
 # Load environment variables
 load_dotenv()
@@ -81,10 +82,10 @@ async def test_result(params: TestResult):
     return ActionResult(extracted_content="The task is COMPLETE - you can EXIT now. DO NOT conduct anymore steps!!!", is_done=True)
 
 @controller.action(
-    'Access the node',
+    'Access the node in the Service Map',
     param_model=NodeId
 )
-async def click_node(params: NodeId, browser: BrowserContext):
+async def access_node(params: NodeId, browser: BrowserContext):
     page = await browser.get_current_page()
 
     js_file_path = os.path.join(os.path.dirname(
@@ -135,13 +136,20 @@ def get_llm():
     bedrock_client = boto3.client(
         'bedrock-runtime', region_name=region, config=config)
 
+    rate_limiter = InMemoryRateLimiter(
+        requests_per_second=0.05,
+        check_every_n_seconds=0.05,
+        max_bucket_size=1,
+    )
+
     return ChatBedrockConverse(
         model_id=f'arn:aws:bedrock:{region}:{account_id}:inference-profile/us.anthropic.claude-3-7-sonnet-20250219-v1:0',
         temperature=0.0,
         max_tokens=None,
         client=bedrock_client,
         provider='Antropic',
-        cache=False
+        cache=False,
+        rate_limiter=rate_limiter
     )
 
 def authentication_open():

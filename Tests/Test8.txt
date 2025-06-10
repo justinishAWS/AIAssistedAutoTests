@@ -1,7 +1,7 @@
 Determine if the given test passed or failed with the following steps:
 
 1. In the left panel, under Application Signals, click 'Service Map'.
-2. Access the node, PASS in "SQS" (MAKE SURE IT IS ALL CAPITALS) as the PARAMETER.
+2. Access the node in the Service Map, PASS in "group:AWS::SQS" as the PARAMETER.
 3. Wait a few seconds.
 4. Click on the bottom link in the 'Top three paths by error rate' dropdown in the right panel.
 5. Click the 'Dependencies' button.

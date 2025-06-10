@@ -3,7 +3,7 @@ function clickNode(testid) {
   const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
 
   setTimeout(() => {
-    const node = iframeDoc.querySelector(`g[data-testid="group:AWS::${testid}"]`);
+    const node = iframeDoc.querySelector(`g[data-testid="${testid}"]`);
     if (node) {
       const nodeBounds = node.getBoundingClientRect();
       const nodeHoverX = nodeBounds.left + nodeBounds.width / 2;
