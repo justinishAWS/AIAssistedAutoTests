@@ -22,20 +22,12 @@ To run this project, create a `.env` file in the root directory based on the pro
 ```
 AWS_REGION=<REGION>
 AWS_ACCOUNT_ID=<ACCOUNT_ID>
+DEBUG_MODE=<True/False>
 ```
 
 ## Debugging
 
 If you want to view the visual browser UI, comment out the line `headless=True` in the `Browser` object.
 
-To debug in headless mode, add the following code to your `main()` to save screenshots of each step to your directory:
-
-```python
-history = await agent.run(max_steps=100)
-for i, screenshot in enumerate(history.screenshots()):
-    with open(f"screenshot_{i}.png", "wb") as f:
-        f.write(base64.b64decode(screenshot))
-```
-
-
-Note: Also ensure to add `import base64` at the top of the file.
+To debug in headless mode to save screenshots of each step to your directory, update your `DEBUG_MODE` variable in `.env` to `True`:
+`DEBUG_MODE=True`
