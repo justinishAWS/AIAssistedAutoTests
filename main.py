@@ -4,6 +4,7 @@ Automated end-to-end implementation for tests (from the APM demo status tracking
 @dev Ensure AWS environment variables are set correctly for Console (Bedrock and CloudWatch) access.
 """
 
+import base64
 import asyncio
 import os
 import sys
@@ -26,6 +27,7 @@ from dotenv import load_dotenv
 load_dotenv()
 region = os.environ['AWS_REGION']
 account_id = os.environ['AWS_ACCOUNT_ID']
+debug_mode = os.environ['DEBUG_MODE'].lower() == 'true'
 
 # Disable browser-use's built-in LLM API-key check
 os.environ["SKIP_LLM_API_KEY_VERIFICATION"] = "True"
@@ -201,7 +203,11 @@ async def main():
         enable_memory=False,
     )
 
-    await agent.run(max_steps=25)
+    history = await agent.run(max_steps=25)
+    if debug_mode:
+        for i, screenshot in enumerate(history.screenshots()):
+            with open(f"screenshot_{i}.png", "wb") as f:
+                f.write(base64.b64decode(screenshot))
     await browser_session.close()
 
 asyncio.run(main())
