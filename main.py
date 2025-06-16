@@ -4,6 +4,7 @@ Automated end-to-end implementation for tests (from the APM demo status tracking
 @dev Ensure AWS environment variables are set correctly for Console (Bedrock and CloudWatch) access.
 """
 
+import time
 import base64
 import asyncio
 import os
@@ -12,9 +13,9 @@ import botocore.session
 import requests
 import urllib.parse
 import json
-import boto3
 
 from botocore.config import Config
+from boto3.session import Session
 from langchain_aws import ChatBedrockConverse
 from browser_use.browser.context import BrowserContext
 from pydantic import BaseModel
@@ -23,6 +24,7 @@ from browser_use.controller.service import Controller
 from browser_use import ActionResult, Agent, BrowserSession, BrowserProfile
 from dotenv import load_dotenv
 from langchain_core.rate_limiters import InMemoryRateLimiter
+from browser_use.agent.memory import MemoryConfig
 
 # Load environment variables
 load_dotenv()
@@ -32,6 +34,23 @@ debug_mode = os.environ['DEBUG_MODE'].lower() == 'true'
 
 # Disable browser-use's built-in LLM API-key check
 os.environ["SKIP_LLM_API_KEY_VERIFICATION"] = "True"
+os.environ["ANONYMIZED_TELEMETRY"] = "false"
+
+prefix = """# Test
+
+## Overview
+
+You are a tester and need to determine if the given test passed or failed with the steps below. If you make it to the end, the test result is passed. If ANY of these steps fail, the test result is failed. Use the 'test_result' function for this. If this test fails, the task is COMPLETE. DO NOT conduct more steps!!!
+
+"""
+
+end = """
+
+## Troubleshooting
+
+### Element Not Found
+If any of the tests fail, the test result is failed - use the 'test_result' function and you are done.
+"""
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -73,6 +92,31 @@ async def click_graph_spike(params: PositionParameters, browser: BrowserContext)
     return ActionResult(extracted_content=logs, include_in_memory=False)
 
 @controller.action(
+    'Access a random graph point',
+    param_model=PositionParameters
+)
+async def click_random_graph(params: PositionParameters, browser: BrowserContext):
+    page = await browser.get_current_page()
+
+    js_file_path = os.path.join(os.path.dirname(
+        __file__), "JSInjections", "clickRandomGraphPoint.js")
+    with open(js_file_path, 'r') as file:
+        js_code = file.read()
+
+    args = {
+        "chartPosition": int(params.x),
+        "checkboxPosition": int(params.y)
+    }
+
+    logs = await page.evaluate(f"""
+        (args) => {{
+            {js_code}
+            return clickRandomGraphPoint(args.chartPosition, args.checkboxPosition);
+        }}
+        """, args)
+    return ActionResult(extracted_content=logs, include_in_memory=False)
+
+@controller.action(
     'Test result status',
     param_model=TestResult
 )
@@ -96,7 +140,6 @@ async def access_node(params: NodeId, browser: BrowserContext):
     args = {
         "nodeId": params.a
     }
-    print(args)
 
     logs = await page.evaluate(f"""
         (args) => {{
@@ -104,7 +147,6 @@ async def access_node(params: NodeId, browser: BrowserContext):
             return clickNode(args.nodeId);
         }}
         """, args)
-    print(logs)
     return ActionResult(extracted_content=logs, include_in_memory=True)
 
 @controller.action(
@@ -131,19 +173,24 @@ async def expand_node_dropdown(params: NodeId, browser: BrowserContext):
         """, args)
     return ActionResult(extracted_content=logs, include_in_memory=True)
 
-def get_llm():
-    config = Config(retries={'max_attempts': 10, 'mode': 'adaptive'})
-    bedrock_client = boto3.client(
+def get_llm(modelID):
+    session = Session(profile_name='bedrock-access')
+
+    config = Config(
+        read_timeout=60*5,
+        retries={'max_attempts': 10, 'mode': 'adaptive'}
+    )
+    bedrock_client = session.client(
         'bedrock-runtime', region_name=region, config=config)
 
     rate_limiter = InMemoryRateLimiter(
-        requests_per_second=0.05,
+        requests_per_second=0.015,
         check_every_n_seconds=0.05,
-        max_bucket_size=1,
+        max_bucket_size=10,
     )
 
     return ChatBedrockConverse(
-        model_id=f'arn:aws:bedrock:{region}:{account_id}:inference-profile/us.anthropic.claude-3-7-sonnet-20250219-v1:0',
+        model_id=f'arn:aws:bedrock:{region}:{account_id}:inference-profile/{modelID}',
         temperature=0.0,
         max_tokens=None,
         client=bedrock_client,
@@ -167,7 +214,7 @@ def authentication_open():
     signin_token_response = requests.get(signin_token_url)
     signin_token = signin_token_response.json()["SigninToken"]
 
-    destination = f"https://{region}.console.aws.amazon.com/cloudwatch/home?region={region}#home:"
+    destination = "https://us-east-1.console.aws.amazon.com/cloudwatch/home?region=us-east-1#home:"
     login_url = (
         "https://signin.aws.amazon.com/federation"
         f"?Action=login"
@@ -179,12 +226,15 @@ def authentication_open():
     return login_url
 
 async def main():
+    startTime = time.time()
     # Get test prompt file
     file_path = sys.argv[1]
     with open(file_path, "r", encoding="utf-8") as file:
-        task = file.read()
+        original_task = file.read()
 
-    llm = get_llm()
+    task = prefix + original_task + end
+
+    llm = get_llm("us.anthropic.claude-3-7-sonnet-20250219-v1:0")
     authenticated_url = authentication_open()
 
     browser_profile = BrowserProfile(
@@ -208,14 +258,23 @@ async def main():
         browser_session=browser_session,
         validate_output=True,
         extend_system_message="""REMEMBER it is ok if the test fails. When the test result is determined, DO NOT continue steps!!! JUST EXIT!!!""",
-        enable_memory=False,
+        enable_memory=True,
+        memory_config=MemoryConfig(
+            llm_instance=llm,
+            agent_id="my_custom_agent",
+            memory_interval=25
+        ),
+        save_conversation_path="logs/conversation",
     )
 
-    history = await agent.run(max_steps=25)
+    history = await agent.run(max_steps=35)
+
     if debug_mode:
         for i, screenshot in enumerate(history.screenshots()):
             with open(f"screenshot_{i}.png", "wb") as f:
                 f.write(base64.b64decode(screenshot))
     await browser_session.close()
+    endTime = time.time()
+    print(f"Time taken: {endTime - startTime} seconds")
 
 asyncio.run(main())

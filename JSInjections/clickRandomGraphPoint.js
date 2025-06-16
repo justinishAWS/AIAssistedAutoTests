@@ -21,33 +21,37 @@ function clickRandomGraphPoint(chartPosition, checkboxPosition) {
 
   const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
 
-  // Each graph has 2+ lines graphed. To ensure the correct line is selected, we remove the other plot
   const checkboxes = iframeDoc.querySelectorAll(LEGEND_CHECKBOX_SELECTOR);
 
   const checkbox = checkboxes[checkboxPosition]; // TEST PARAM (6)
-  const checkboxBounds = checkbox.getBoundingClientRect();
-  const checkboxHoverX = checkboxBounds.left + checkboxBounds.width / 2;
-  const checkboxHoverY = checkboxBounds.top + checkboxBounds.height / 2;
+  const checkboxGroup = checkbox.closest("g.legend.dimmable");
 
-  const checkboxHoverEvent = new MouseEvent("mousemove", {
-    clientX: checkboxHoverX,
-    clientY: checkboxHoverY,
-    bubbles: true,
-    cancelable: true,
-    view: window,
-  });
+  // Each graph has 2+ lines graphed. To ensure the correct line is selected, we remove the other plot
+  if (!checkboxGroup?.classList.contains("legend-disabled")) {
+    const checkboxBounds = checkbox.getBoundingClientRect();
+    const checkboxHoverX = checkboxBounds.left + checkboxBounds.width / 2;
+    const checkboxHoverY = checkboxBounds.top + checkboxBounds.height / 2;
 
-  checkbox.dispatchEvent(checkboxHoverEvent);
+    const checkboxHoverEvent = new MouseEvent("mousemove", {
+      clientX: checkboxHoverX,
+      clientY: checkboxHoverY,
+      bubbles: true,
+      cancelable: true,
+      view: window,
+    });
 
-  const checkboxClickEvent = new MouseEvent("click", {
-    clientX: checkboxHoverX,
-    clientY: checkboxHoverY,
-    bubbles: true,
-    cancelable: true,
-    view: window,
-  });
+    checkbox.dispatchEvent(checkboxHoverEvent);
 
-  checkbox.dispatchEvent(checkboxClickEvent);
+    const checkboxClickEvent = new MouseEvent("click", {
+      clientX: checkboxHoverX,
+      clientY: checkboxHoverY,
+      bubbles: true,
+      cancelable: true,
+      view: window,
+    });
+
+    checkbox.dispatchEvent(checkboxClickEvent);
+  }
 
   // This will query all of the graphs in the iFrame
   const charts = iframeDoc.querySelectorAll(TRIAGE_CHART_SELECTOR);
