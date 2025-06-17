@@ -66,6 +66,11 @@ class TestResult(BaseModel):
 class NodeId(BaseModel):
     a: Any # nodeId
 
+class ScrollingParameters(BaseModel):
+     x: Any # iframeId
+     y: Any # elementId
+     z: Any # scrollTimes
+
 @controller.action(
     'Access the graph and open the popup',
     param_model=PositionParameters
@@ -115,6 +120,34 @@ async def click_random_graph(params: PositionParameters, browser: BrowserContext
         }}
         """, args)
     return ActionResult(extracted_content=logs, include_in_memory=False)
+
+@controller.action(
+    'Check all points are above the threshold',
+    param_model=PositionParameters
+)
+async def check_all_points_above_threshold(params: PositionParameters, browser: BrowserContext):
+    page = await browser.get_current_page()
+
+    js_file_path = os.path.join(os.path.dirname(
+        __file__), "JSInjections", "checkAllPointAboveThreshold.js")
+    with open(js_file_path, 'r') as file:
+        js_code = file.read()
+
+    args = {
+        "chartPosition": int(params.x),
+        "checkboxPosition": int(params.y)
+    }
+
+    logs = await page.evaluate(f"""
+        async (args) => {{
+            {js_code}
+            return await checkAllPointAboveThreshold(args.chartPosition, args.checkboxPosition);
+        }}
+    """, args)
+    if logs:
+        return ActionResult(extracted_content="The datapoints are above the threshold.", include_in_memory=False)
+    else:
+        return ActionResult(extracted_content="The datapoints are NOT above the threshold. This test has failed.", include_in_memory=False)
 
 @controller.action(
     'Test result status',
@@ -172,6 +205,34 @@ async def expand_node_dropdown(params: NodeId, browser: BrowserContext):
         }}
         """, args)
     return ActionResult(extracted_content=logs, include_in_memory=True)
+
+@controller.action(
+    'Scroll injection down',
+    param_model=ScrollingParameters
+)
+async def scrolling(params: ScrollingParameters, browser: BrowserContext):
+    page = await browser.get_current_page()
+
+    js_file_path = os.path.join(os.path.dirname(
+        __file__), "JSInjections", "scrollDown.js")
+    with open(js_file_path, 'r') as file:
+        js_code = file.read()
+
+    args = {
+        "iframeId": params.x,
+        "elementId": params.y,
+        "scrollTimes": int(params.z)
+    }
+    print(args)
+
+    logs = await page.evaluate(f"""
+        (args) => {{
+            {js_code}
+            return scrollDown(args.iframeId, args.elementId, args.scrollTimes);
+        }}
+        """, args)
+    print(logs)
+    return ActionResult(extracted_content=logs, include_in_memory=False)
 
 def get_llm(modelID):
     session = Session(profile_name='bedrock-access')

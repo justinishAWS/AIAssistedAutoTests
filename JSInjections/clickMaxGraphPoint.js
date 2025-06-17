@@ -10,19 +10,24 @@ function clickMaxGraphPoint(chartPosition, checkboxPosition) {
   const DATA_POINT_SELECTOR = "circle.datapoint";
   const ALL_DATA_POINT_SELECTOR = "circle.all-datapoint:not(.hidden)";
 
+  const IFRAME_SELECTOR = "iframe#microConsole-Pulse";
+  const LEGEND_CHECKBOX_SELECTOR = "rect.legend-checkbox";
+
   const MAX_RETRIES = 10;
   const RETRY_DELAY = 500;
 
   // Get the iFrame
-  const iframe = document.querySelector("iframe#microConsole-Pulse");
+  const iframe = document.querySelector(IFRAME_SELECTOR);
 
   const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
 
-  // Each graph has 2+ lines graphed. To ensure the correct line is selected, we remove the other plot
-  if (!iframeDoc.querySelector("g.legend.dimmable.legend-disabled")) {
-    const checkboxes = iframeDoc.querySelectorAll("rect.legend-checkbox");
+  const checkboxes = iframeDoc.querySelectorAll(LEGEND_CHECKBOX_SELECTOR);
 
-    const checkbox = checkboxes[checkboxPosition]; // PARAM (6)
+  const checkbox = checkboxes[checkboxPosition]; // PARAM (6)
+  const checkboxGroup = checkbox.closest("g.legend.dimmable");
+
+  // Each graph has 2+ lines graphed. To ensure the correct line is selected, we remove the other plot
+  if (!checkboxGroup?.classList.contains("legend-disabled")) {
     const checkboxBounds = checkbox.getBoundingClientRect();
     const checkboxHoverX = checkboxBounds.left + checkboxBounds.width / 2;
     const checkboxHoverY = checkboxBounds.top + checkboxBounds.height / 2;

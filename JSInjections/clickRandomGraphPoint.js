@@ -8,7 +8,7 @@ function clickRandomGraphPoint(chartPosition, checkboxPosition) {
   const EVENT_LAYER_SELECTOR = ".event-layer";
 
   const DATA_POINT_SELECTOR = "circle.datapoint";
-  const ALL_DATA_POINT_SELECTOR = "circle.all-datapoint";
+  const ALL_DATA_POINT_SELECTOR = "circle.all-datapoint:not(.hidden)";
 
   const IFRAME_SELECTOR = "iframe#microConsole-Pulse";
   const LEGEND_CHECKBOX_SELECTOR = "rect.legend-checkbox";
