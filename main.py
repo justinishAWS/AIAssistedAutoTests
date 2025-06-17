@@ -32,6 +32,8 @@ region = os.environ['AWS_REGION']
 account_id = os.environ['AWS_ACCOUNT_ID']
 debug_mode = os.environ['DEBUG_MODE'].lower() == 'true'
 
+model_id = "us.anthropic.claude-3-7-sonnet-20250219-v1:0"
+
 # Disable browser-use's built-in LLM API-key check
 os.environ["SKIP_LLM_API_KEY_VERIFICATION"] = "True"
 os.environ["ANONYMIZED_TELEMETRY"] = "false"
@@ -79,7 +81,7 @@ async def click_graph_spike(params: PositionParameters, browser: BrowserContext)
     page = await browser.get_current_page()
 
     js_file_path = os.path.join(os.path.dirname(
-        __file__), "JSInjections", "clickMaxGraphPoint.js")
+        __file__), "libs", "jsInjectionScripts", "clickMaxGraphPoint.js")
     with open(js_file_path, 'r') as file:
         js_code = file.read()
 
@@ -104,7 +106,7 @@ async def click_random_graph(params: PositionParameters, browser: BrowserContext
     page = await browser.get_current_page()
 
     js_file_path = os.path.join(os.path.dirname(
-        __file__), "JSInjections", "clickRandomGraphPoint.js")
+        __file__), "libs", "jsInjectionScripts", "clickRandomGraphPoint.js")
     with open(js_file_path, 'r') as file:
         js_code = file.read()
 
@@ -129,7 +131,7 @@ async def check_all_points_above_threshold(params: PositionParameters, browser: 
     page = await browser.get_current_page()
 
     js_file_path = os.path.join(os.path.dirname(
-        __file__), "JSInjections", "checkAllPointAboveThreshold.js")
+        __file__), "libs", "jsInjectionScripts", "checkAllPointAboveThreshold.js")
     with open(js_file_path, 'r') as file:
         js_code = file.read()
 
@@ -166,7 +168,7 @@ async def access_node(params: NodeId, browser: BrowserContext):
     page = await browser.get_current_page()
 
     js_file_path = os.path.join(os.path.dirname(
-        __file__), "JSInjections", "clickNode.js")
+        __file__), "libs", "jsInjectionScripts", "clickNode.js")
     with open(js_file_path, 'r') as file:
         js_code = file.read()
 
@@ -190,7 +192,7 @@ async def expand_node_dropdown(params: NodeId, browser: BrowserContext):
     page = await browser.get_current_page()
 
     js_file_path = os.path.join(os.path.dirname(
-        __file__), "JSInjections", "expandServiceMapNode.js")
+        __file__), "libs", "jsInjectionScripts", "expandServiceMapNode.js")
     with open(js_file_path, 'r') as file:
         js_code = file.read()
 
@@ -214,7 +216,7 @@ async def scrolling(params: ScrollingParameters, browser: BrowserContext):
     page = await browser.get_current_page()
 
     js_file_path = os.path.join(os.path.dirname(
-        __file__), "JSInjections", "scrollDown.js")
+        __file__), "libs", "jsInjectionScripts", "scrollDown.js")
     with open(js_file_path, 'r') as file:
         js_code = file.read()
 
@@ -295,7 +297,7 @@ async def main():
 
     task = prefix + original_task + end
 
-    llm = get_llm("us.anthropic.claude-3-7-sonnet-20250219-v1:0")
+    llm = get_llm(model_id)
     authenticated_url = authentication_open()
 
     browser_profile = BrowserProfile(
