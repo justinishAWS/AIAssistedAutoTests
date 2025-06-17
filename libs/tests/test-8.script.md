@@ -34,7 +34,7 @@ Wait a few seconds.
 
 ### 8. Click the first 'Trace ID'
 
-In the right panel, click the first link under 'Trace ID'.
+In the right panel, click the first blue hyperlink under 'Trace ID'.
 
 **Constraints:**
 - You MUST ensure that the link you are trying to click is a hexadecimal string
