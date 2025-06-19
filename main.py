@@ -31,6 +31,7 @@ load_dotenv()
 region = os.environ['AWS_REGION']
 account_id = os.environ['AWS_ACCOUNT_ID']
 debug_mode = os.environ['DEBUG_MODE'].lower() == 'true'
+test_failed = False
 
 model_id = "us.anthropic.claude-3-7-sonnet-20250219-v1:0"
 
@@ -157,7 +158,10 @@ async def check_all_points_above_threshold(params: PositionParameters, browser: 
 )
 async def test_result(params: TestResult):
     # TODO: When access is granted to publish metrics, add functionality to publish metric
+    global test_failed
     print(f"test result is {params.z}!!!")
+    if params.z == "failed":
+        test_failed = True
     return ActionResult(extracted_content="The task is COMPLETE - you can EXIT now. DO NOT conduct anymore steps!!!", is_done=True)
 
 @controller.action(
@@ -246,11 +250,12 @@ def get_llm(modelID):
     bedrock_client = session.client(
         'bedrock-runtime', region_name=region, config=config)
 
-    rate_limiter = InMemoryRateLimiter(
-        requests_per_second=0.015,
-        check_every_n_seconds=0.05,
-        max_bucket_size=10,
-    )
+    rate_limiter = None
+    # rate_limiter = InMemoryRateLimiter(
+    #     requests_per_second=0.015,
+    #     check_every_n_seconds=0.05,
+    #     max_bucket_size=10,
+    # )
 
     return ChatBedrockConverse(
         model_id=f'arn:aws:bedrock:{region}:{account_id}:inference-profile/{modelID}',
@@ -321,18 +326,18 @@ async def main():
         browser_session=browser_session,
         validate_output=True,
         extend_system_message="""REMEMBER it is ok if the test fails. When the test result is determined, DO NOT continue steps!!! JUST EXIT!!!""",
-        enable_memory=True,
-        memory_config=MemoryConfig(
-            llm_instance=llm,
-            agent_id="my_custom_agent",
-            memory_interval=25
-        ),
+        enable_memory=False,
+        # memory_config=MemoryConfig(
+        #     llm_instance=llm,
+        #     agent_id="my_custom_agent",
+        #     memory_interval=30
+        # ),
         save_conversation_path="logs/conversation",
     )
 
-    history = await agent.run(max_steps=35)
+    history = await agent.run(max_steps=50)
 
-    if debug_mode:
+    if debug_mode or test_failed:
         for i, screenshot in enumerate(history.screenshots()):
             with open(f"screenshot_{i}.png", "wb") as f:
                 f.write(base64.b64decode(screenshot))

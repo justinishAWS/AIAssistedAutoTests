@@ -25,43 +25,32 @@ In the search field under 'Service operations' type 'Name = POST /owners/{ownerI
 
 ### 6. Access the graph and open the popup.
 
-Access the graph and open the popup, PASS in 2 and 6 as a PARAMETERS.
+Access the graph and open the popup, PASS in 2 and 6 as a PARAMETERS. Then wait a few seconds.
 
 **Constraints:**
 - You MUST pass in parameters 2 and 6
 
-### 7. Wait
+### 8. Click the blue hexadecimal string
 
-Wait a few seconds.
-
-### 8. Click the first 'Trace ID'
-
-In the right panel, click the first link under 'Trace ID'.
+In the right panel, click the first blue hexadecimal string (it should look like this: "...d0f3ab63951df"). Then wait a few seconds.
 
 **Constraints:**
-- You MUST ensure that the link you are trying to click is a hexadecimal string
+- You MUST ensure that the link you are trying to click is a blue hexadecimal string. If it is not try again.
 
-### 9. Wait
-
-Wait a few seconds for the page to render.
-
-### 10. Close 'pet-clinic-frontend-java' dropdown.
+### 9. Close 'pet-clinic-frontend-java' dropdown.
 
 Close the 'pet-clinic-frontend-java' dropdown.
 
-### 11. Click the 'visits-service-java' row
+### 10. Click the 'visits-service-java' row
 Inside the 'visits-service-java' dropdown, click on the row with 'visits-service-java'. 
 
 **Constraints:**
 - You MUST ensure that it is inside the 'visits-service-java' dropdown
 
-### 12. Click the 'Exceptions' button
+### 11. Click the 'Exceptions' button
 
 In the right panel, click the 'Exceptions' button.
 
-### 13. Wait
-Wait a few seconds.
-
-### 14. Look for 'The level of configured provisioned throughput for the table was exceeded.'.
+### 12. Look for 'The level of configured provisioned throughput for the table was exceeded.'.
 
 Look for the message 'The level of configured provisioned throughput for the table was exceeded.'.

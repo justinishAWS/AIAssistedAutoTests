@@ -32,25 +32,21 @@ Click the 'Dependencies' button.
 
 Wait a few seconds.
 
-### 8. Click the first 'Trace ID'
+### 8. Click the blue hexadecimal string
 
-In the right panel, click the first blue hyperlink under 'Trace ID'.
+In the right panel, click the first blue hexadecimal string (it should look like this: "...d0f3ab63951df"). Then wait a few seconds.
 
 **Constraints:**
-- You MUST ensure that the link you are trying to click is a hexadecimal string
+- You MUST ensure that the link you are trying to click is a blue hexadecimal string. If it is not try again
 
-### 9. Wait
-
-Wait a few seconds for the page to render.
-
-### 10. Click 'Open Segment Details Panel' button
+### 9. Click 'Open Segment Details Panel' button
 
 In the top right corner, open segment details panel IF it is not already expanded.
 
-### 11. Click 'Exceptions' button
+### 10. Click 'Exceptions' button
 
 In the right panel, click the 'Exceptions' button.
 
-### 12. Look for 'Only one PurgeQueue operation on apm_test is allowed every 60 seconds.'.
+### 11. Look for 'Only one PurgeQueue operation on apm_test is allowed every 60 seconds.'.
 
 Look for the message 'Only one PurgeQueue operation on apm_test is allowed every 60 seconds.'.
