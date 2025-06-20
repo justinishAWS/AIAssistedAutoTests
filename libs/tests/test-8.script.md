@@ -25,28 +25,27 @@ Click the 'Dependencies' button.
 
 ### 6. Access the graph and open the popup.
 
+Access the graph and open the popup, PASS in 2 and 3 as a PARAMETERS. Then wait a few seconds.
+
 **Constraints:**
 - You MUST pass in parameters 2 and 3
 
-### 7. Wait
-
-Wait a few seconds.
-
-### 8. Click the blue hexadecimal string
+### 7. Click the blue hexadecimal string
 
 In the right panel, click the first blue hexadecimal string (it should look like this: "...d0f3ab63951df"). Then wait a few seconds.
 
 **Constraints:**
-- You MUST ensure that the link you are trying to click is a blue hexadecimal string. If it is not try again
+- You MUST ensure that the link you are trying to click is a blue hexadecimal string.
+- You MUST ensure that this was clicked. If you still see it on the page, try again
 
-### 9. Click 'Open Segment Details Panel' button
+### 8. Click 'Open Segment Details Panel' button
 
 In the top right corner, open segment details panel IF it is not already expanded.
 
-### 10. Click 'Exceptions' button
+### 9. Click 'Exceptions' button
 
 In the right panel, click the 'Exceptions' button.
 
-### 11. Look for 'Only one PurgeQueue operation on apm_test is allowed every 60 seconds.'.
+### 10. Look for 'Only one PurgeQueue operation on apm_test is allowed every 60 seconds.'.
 
 Look for the message 'Only one PurgeQueue operation on apm_test is allowed every 60 seconds.'.

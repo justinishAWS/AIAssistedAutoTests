@@ -229,7 +229,6 @@ async def scrolling(params: ScrollingParameters, browser: BrowserContext):
         "elementId": params.y,
         "scrollTimes": int(params.z)
     }
-    print(args)
 
     logs = await page.evaluate(f"""
         (args) => {{
@@ -237,7 +236,6 @@ async def scrolling(params: ScrollingParameters, browser: BrowserContext):
             return scrollDown(args.iframeId, args.elementId, args.scrollTimes);
         }}
         """, args)
-    print(logs)
     return ActionResult(extracted_content=logs, include_in_memory=False)
 
 def get_llm(modelID):
