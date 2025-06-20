@@ -82,7 +82,7 @@ async def click_graph_spike(params: PositionParameters, browser: BrowserContext)
     page = await browser.get_current_page()
 
     js_file_path = os.path.join(os.path.dirname(
-        __file__), "libs", "jsInjectionScripts", "clickMaxGraphPoint.js")
+        __file__), "jsInjectionScripts", "clickMaxGraphPoint.js")
     with open(js_file_path, 'r') as file:
         js_code = file.read()
 
@@ -107,7 +107,7 @@ async def click_random_graph(params: PositionParameters, browser: BrowserContext
     page = await browser.get_current_page()
 
     js_file_path = os.path.join(os.path.dirname(
-        __file__), "libs", "jsInjectionScripts", "clickRandomGraphPoint.js")
+        __file__), "jsInjectionScripts", "clickRandomGraphPoint.js")
     with open(js_file_path, 'r') as file:
         js_code = file.read()
 
@@ -132,7 +132,7 @@ async def check_all_points_above_threshold(params: PositionParameters, browser: 
     page = await browser.get_current_page()
 
     js_file_path = os.path.join(os.path.dirname(
-        __file__), "libs", "jsInjectionScripts", "checkAllPointAboveThreshold.js")
+        __file__), "jsInjectionScripts", "checkAllPointAboveThreshold.js")
     with open(js_file_path, 'r') as file:
         js_code = file.read()
 
@@ -172,7 +172,7 @@ async def access_node(params: NodeId, browser: BrowserContext):
     page = await browser.get_current_page()
 
     js_file_path = os.path.join(os.path.dirname(
-        __file__), "libs", "jsInjectionScripts", "clickNode.js")
+        __file__), "jsInjectionScripts", "clickNode.js")
     with open(js_file_path, 'r') as file:
         js_code = file.read()
 
@@ -196,7 +196,7 @@ async def expand_node_dropdown(params: NodeId, browser: BrowserContext):
     page = await browser.get_current_page()
 
     js_file_path = os.path.join(os.path.dirname(
-        __file__), "libs", "jsInjectionScripts", "expandServiceMapNode.js")
+        __file__), "jsInjectionScripts", "expandServiceMapNode.js")
     with open(js_file_path, 'r') as file:
         js_code = file.read()
 
@@ -220,7 +220,7 @@ async def scrolling(params: ScrollingParameters, browser: BrowserContext):
     page = await browser.get_current_page()
 
     js_file_path = os.path.join(os.path.dirname(
-        __file__), "libs", "jsInjectionScripts", "scrollDown.js")
+        __file__), "jsInjectionScripts", "scrollDown.js")
     with open(js_file_path, 'r') as file:
         js_code = file.read()
 
@@ -330,10 +330,10 @@ async def main():
         #     agent_id="my_custom_agent",
         #     memory_interval=30
         # ),
-        save_conversation_path="logs/conversation",
+        save_conversation_path="../logs/conversation",
     )
 
-    history = await agent.run(max_steps=50)
+    history = await agent.run(max_steps=60)
 
     if debug_mode or test_failed:
         for i, screenshot in enumerate(history.screenshots()):
