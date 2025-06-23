@@ -1,0 +1,8 @@
+# macOS
+.DS_Store
+
+# VS Code user-specific settings
+.vscode/settings.json
+
+# Environment Variables
+.env
