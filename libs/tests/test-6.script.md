@@ -32,11 +32,11 @@ Access the graph and open the popup, PASS in 2 and 6 as a PARAMETERS. Then wait 
 
 ### 8. Click the blue hexadecimal string
 
-In the right panel, click the first blue hexadecimal string (it should look like this: "...d0f3ab63951df"). Then wait a few seconds.
+In the right panel, click the first blue hexadecimal string under 'Trace ID' (it should look like this: "...d0f3ab63951df"). Then wait a few seconds.
 
 **Constraints:**
 - You MUST ensure that the link you are trying to click is a blue hexadecimal string.
-- You MUST ensure that this was clicked. If you still see it on the page, try again
+- You MUST ensure the element you are clicking is an <a> tag with aria-label='Trace details for trace ...'
 
 ### 9. Close 'pet-clinic-frontend-java' dropdown.
 

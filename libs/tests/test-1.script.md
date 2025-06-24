@@ -41,15 +41,15 @@ In the right panel, click the 'Correlated Spans' tab
 
 ### 10. Click the blue hexadecimal string
 
-In the right panel, click the first blue hexadecimal string (it should look like this: "...d0f3ab63951df"). Then wait a few seconds.
+In the right panel, click the first blue hexadecimal string under 'Trace ID' (it should look like this: "...d0f3ab63951df"). Then wait a few seconds.
 
 **Constraints:**
 - You MUST ensure that the link you are trying to click is a blue hexadecimal string.
-- You MUST ensure that this was clicked. If you still see it on the page, try again
+- You MUST ensure the element you are clicking is an <a> tag with aria-label='Trace details for trace ...'
 
 ### 11. Click 'Exceptions' button 
 
-In the right panel, click the 'Exceptions' button.
+On the new page, in the right panel, click the 'Exceptions' button.
 
 ### 12. Look for 'Fail to parse the request. Cause: NullPointerException'.
 
@@ -87,13 +87,13 @@ Check that there is more than one row displayed in the right panel.
 
 ### 17. Click 'X'
 
-Click the "X" button inside the blue tooltip box labeled "Requests DATE TIME" (Ex. 'Requests 2025/06/18 18:10:00') in the top-right corner of the "Requests and Availability" chart. If the next step fails, try to do this again.
+Click the "X" button inside the blue box labeled "Requests DATE TIME" (Ex. 'Requests 2025/06/18 18:10:00') in the top-right corner of the "Requests and Availability" chart. If the next step fails, try to do this again.
 
 ### 18. Access the graph and open the popup.
 
 Access the graph and open the popup, PASS in 2 and 6 as a PARAMETERS. Then wait a few seconds.
 
-If this fails, try to click 'X' again
+If this fails, try to click 'X' again (try step 17 again)
 
 **Constraints:**
 - You MUST pass in parameters 2 and 6
