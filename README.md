@@ -1,5 +1,5 @@
 # AIAssistedAutoTests
-This can run tests (from the APM demo status tracking Quip file) end-to-end with no user interaction.
+This can run tests end-to-end with no user interaction.
 
 We utilize custom Actions to authenticate and federate an AWS link automatically and inject JavaScript code to access metric graphs.
 
@@ -8,13 +8,13 @@ To try running this on your local machine, ensure that you have at least `ReadOn
 1. Run `mwinit` to generate new credentials  
 
 2. Run `ada credentials update --account=<apm-demo1_account_id> --provider=isengard --once --role=<Role>`
+3. Run `ada credentials update --account=<account for Bedrock use> --provider=isengard --once --role=<Role> --profile=bedrock-access`
+4. Run `pip install browser-use` to install browser-use
+5. Run `pip install "browser-use[memory]"` to install memory functionality
 
-3. Run `pip install browser-use` to install browser-use
-4. Run `pip install "browser-use[memory]"` to install memory functionality
-
-5. Run `pip install playwright` to install PlayWright
-
-6. Run the file with `python main.py Tests/TestX.txt`
+6. Run `pip install playwright` to install PlayWright
+7. `cd libs`
+8. Run the file with `python main.py tests/test-x.script.md`
 
 ## Environment Variables
 To run this project, create a `.env` file in the root directory based on the provided `.env.example`:
