@@ -33,5 +33,5 @@ function clickNode(testid) {
     }
   }, 1000);
 
-  return "JavaScript injected successfully.";
+  return "JavaScript injected successfully. Continue with the steps.";
 }

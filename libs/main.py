@@ -186,7 +186,7 @@ async def access_node(params: NodeId, browser: BrowserContext):
             return clickNode(args.nodeId);
         }}
         """, args)
-    return ActionResult(extracted_content=logs, include_in_memory=True)
+    return ActionResult(extracted_content=logs, include_in_memory=True, is_done=False)
 
 @controller.action(
     'Expand all the options to show all nodes',
@@ -305,6 +305,8 @@ async def main():
 
     browser_profile = BrowserProfile(
 		headless=True,
+        wait_between_actions=10.0,
+        minimum_wait_page_load_time=10.0
 	)
 
     browser_session = BrowserSession(
@@ -336,8 +338,12 @@ async def main():
     history = await agent.run(max_steps=60)
 
     if debug_mode or test_failed:
+        screenshot_dir = "../screenshots"
+        os.makedirs(screenshot_dir, exist_ok=True)
+
         for i, screenshot in enumerate(history.screenshots()):
-            with open(f"screenshot_{i}.png", "wb") as f:
+            screenshot_path = os.path.join(screenshot_dir, f"screenshot_{i}.png")
+            with open(screenshot_path, "wb") as f:
                 f.write(base64.b64decode(screenshot))
     await browser_session.close()
     endTime = time.time()
