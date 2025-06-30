@@ -25,6 +25,8 @@ AWS_ACCOUNT_ID=<ACCOUNT_ID>
 DEBUG_MODE=<True/False>
 ```
 
+**Note:** The `AWS_ACCOUNT_ID` and `AWS_REGION` should be the ID and region for the account used in Step 3 from "Quick Start" for Bedrock access.
+
 ## Debugging
 
 If you want to view the visual browser UI, comment out the line `headless=True` in the `Browser` object.
