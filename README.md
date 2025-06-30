@@ -9,7 +9,7 @@ To try running this on your local machine, ensure that you have at least `ReadOn
 
 2. Run `ada credentials update --account=<apm-demo1_account_id> --provider=isengard --once --role=<Role>`
 3. Run `ada credentials update --account=<account for Bedrock use> --provider=isengard --once --role=<Role> --profile=bedrock-access`
-4. Run `pip install browser-use` to install browser-use
+4. Run `pip install browser-use==0.2.5` to install browser-use (we want to remain on version `0.2.5`, but this can be changed in the future)
 5. Run `pip install "browser-use[memory]"` to install memory functionality
 
 6. Run `pip install playwright` to install PlayWright
