@@ -13,10 +13,10 @@ In the search field with placeholder text 'Filter SLOs by text, property or valu
 
 ### 3. Check all points are above the threshold.
 
-Check all points are above the threshold, PASS in 2 and 3 as a PARAMETERS.
+Check all points are above the threshold, PASS in 2, 3, and false as a PARAMETERS.
 
 **Constraints:**
-- You MUST pass in parameters 2 and 3
+- You MUST pass in parameters 2, 3, and false
 
 ### 4. Click 'GET ^billings/$'
 
@@ -45,12 +45,9 @@ In the right panel, click the hyperlink 'View in Database Insights'.
 
 On the new page, under the 'Database Views' dropdown, click 'Database Instance'
 
-### 10. Click the first row inside 'Top SQL'
+### 10. Select the radio button for the first item inside 'Top SQL'
 
-Click the circle of the first row inside the 'Top SQL' section. This should have columns (Load by waits (AAS), SQL statements, Calls/sec, etc.)
-
-**Constraints:**
-- You MUST ensure the element you click here is a circle.
+Click the `<input type="radio">` element that belongs to the first selectable item in the 'Top SQL' section.
 
 ### 11. Check that the 'SQL Text' is displayed
 

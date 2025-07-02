@@ -63,6 +63,11 @@ class PositionParameters(BaseModel):
      x: Any # chartPosition
      y: Any # checkboxPosition
 
+class ThresholdParameters(BaseModel):
+    x: Any # chartPosition
+    y: Any # checkboxPosition
+    z: bool # checkZero
+
 class TestResult(BaseModel):
     z: Any # result
 
@@ -126,9 +131,9 @@ async def click_random_graph(params: PositionParameters, browser: BrowserContext
 
 @controller.action(
     'Check all points are above the threshold',
-    param_model=PositionParameters
+    param_model=ThresholdParameters
 )
-async def check_all_points_above_threshold(params: PositionParameters, browser: BrowserContext):
+async def check_all_points_above_threshold(params: ThresholdParameters, browser: BrowserContext):
     page = await browser.get_current_page()
 
     js_file_path = os.path.join(os.path.dirname(
@@ -138,13 +143,14 @@ async def check_all_points_above_threshold(params: PositionParameters, browser: 
 
     args = {
         "chartPosition": int(params.x),
-        "checkboxPosition": int(params.y)
+        "checkboxPosition": int(params.y),
+        "checkZero": params.z,
     }
 
     logs = await page.evaluate(f"""
         async (args) => {{
             {js_code}
-            return await checkAllPointAboveThreshold(args.chartPosition, args.checkboxPosition);
+            return await checkAllPointAboveThreshold(args.chartPosition, args.checkboxPosition, args.checkZero);
         }}
     """, args)
     if logs:
@@ -162,7 +168,7 @@ async def test_result(params: TestResult):
     print(f"test result is {params.z}!!!")
     if params.z == "failed":
         test_failed = True
-    return ActionResult(extracted_content="The task is COMPLETE - you can EXIT now. DO NOT conduct anymore steps!!!", is_done=True)
+    return ActionResult(extracted_content="The task is COMPLETE - use the done() function now.", is_done=True)
 
 @controller.action(
     'Access the node in the Service Map',
