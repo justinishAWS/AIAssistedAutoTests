@@ -1,4 +1,8 @@
-async function checkAllPointAboveThreshold(chartPosition, checkboxPosition) {
+async function checkAllPointAboveThreshold(
+  chartPosition,
+  checkboxPosition,
+  checkZero
+) {
   const LEADER_BOARD_DATA_POINT_SELECTOR = "circle.leaderboard-datapoint";
   const EVENT_LAYER_SELECTOR = ".event-layer";
 
@@ -21,30 +25,35 @@ async function checkAllPointAboveThreshold(chartPosition, checkboxPosition) {
   const checkboxes = iframeDoc.querySelectorAll(LEGEND_CHECKBOX_SELECTOR);
 
   const checkbox = checkboxes[checkboxPosition]; // TEST PARAM (3)
+  const checkboxGroup = checkbox.closest("g.legend.dimmable");
 
-  const checkboxBounds = checkbox.getBoundingClientRect();
-  const checkboxHoverX = checkboxBounds.left + checkboxBounds.width / 2;
-  const checkboxHoverY = checkboxBounds.top + checkboxBounds.height / 2;
+  // Each graph has 2+ lines graphed. To ensure the correct line is selected, we remove the other plot
+  if (!checkboxGroup?.classList.contains("legend-disabled")) {
+    const checkboxBounds = checkbox.getBoundingClientRect();
+    const checkboxHoverX = checkboxBounds.left + checkboxBounds.width / 2;
+    const checkboxHoverY = checkboxBounds.top + checkboxBounds.height / 2;
 
-  const checkboxHoverEvent = new MouseEvent("mousemove", {
-    clientX: checkboxHoverX,
-    clientY: checkboxHoverY,
-    bubbles: true,
-    cancelable: true,
-    view: window,
-  });
+    const checkboxHoverEvent = new MouseEvent("mousemove", {
+      clientX: checkboxHoverX,
+      clientY: checkboxHoverY,
+      bubbles: true,
+      cancelable: true,
+      view: window,
+    });
 
-  checkbox.dispatchEvent(checkboxHoverEvent);
+    checkbox.dispatchEvent(checkboxHoverEvent);
 
-  const checkboxClickEvent = new MouseEvent("click", {
-    clientX: checkboxHoverX,
-    clientY: checkboxHoverY,
-    bubbles: true,
-    cancelable: true,
-    view: window,
-  });
+    const checkboxClickEvent = new MouseEvent("click", {
+      clientX: checkboxHoverX,
+      clientY: checkboxHoverY,
+      bubbles: true,
+      cancelable: true,
+      view: window,
+    });
 
-  checkbox.dispatchEvent(checkboxClickEvent);
+    checkbox.dispatchEvent(checkboxClickEvent);
+  }
+
   const charts = iframeDoc.querySelectorAll(CWDB_CHART_SELECTOR);
 
   const chart = charts[chartPosition]; // TEST PARAM (2)
@@ -104,7 +113,7 @@ async function checkAllPointAboveThreshold(chartPosition, checkboxPosition) {
       if (allDatapoints.length > 0) {
         for (const datapoint of allDatapoints) {
           const cy = parseFloat(datapoint.getAttribute("cy"));
-          if (cy > annotationLineY) {
+          if ((cy > annotationLineY && !checkZero) || (cy != 90 && checkZero)) {
             return false;
           }
         }
