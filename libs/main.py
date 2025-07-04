@@ -69,7 +69,7 @@ class ThresholdParameters(BaseModel):
     z: bool # checkZero
 
 class TestResult(BaseModel):
-    z: Any # result
+    x: bool # result
 
 class NodeId(BaseModel):
     a: Any # nodeId
@@ -163,12 +163,38 @@ async def check_all_points_above_threshold(params: ThresholdParameters, browser:
     param_model=TestResult
 )
 async def test_result(params: TestResult):
-    # TODO: When access is granted to publish metrics, add functionality to publish metric
     global test_failed
-    print(f"test result is {params.z}!!!")
-    if params.z == "failed":
+    if not params.x:
         test_failed = True
-    return ActionResult(extracted_content="The task is COMPLETE - use the done() function now.", is_done=True)
+
+    session = Session(profile_name='bedrock-access')
+    cloudwatch = session.client('cloudwatch', region_name=region)
+
+    metric_name = "Failure"
+    namespace = "AITests"
+
+    cloudwatch.put_metric_data(
+        Namespace=namespace,
+        MetricData=[
+            {
+                "MetricName": metric_name,
+                "Dimensions": [
+                    {
+                        "Name": "Language",
+                        "Value": "Python"
+                    },
+                    {
+                        "Name": "Source",
+                        "Value": "Local"
+                    }
+                ],
+                "Value": 0.0 if params.x else 1.0,
+            }
+        ]
+    )
+    print(f"Published metric: {metric_name} in namespace {namespace} as {'0.0' if params.x else '1.0'}")
+    return ActionResult(extracted_content="The task is COMPLETE - you can EXIT now. DO NOT conduct anymore steps!!!", is_done=True)
+
 
 @controller.action(
     'Access the node in the Service Map',
