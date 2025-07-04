@@ -25,6 +25,7 @@ from browser_use import ActionResult, Agent, BrowserSession, BrowserProfile
 from dotenv import load_dotenv
 from langchain_core.rate_limiters import InMemoryRateLimiter
 from browser_use.agent.memory import MemoryConfig
+from datetime import datetime
 
 # Load environment variables
 load_dotenv()
@@ -367,16 +368,26 @@ async def main():
         save_conversation_path="../logs/conversation",
     )
 
-    history = await agent.run(max_steps=60)
+    history = await agent.run(max_steps=70)
+
+    bucket_name = "aitestsscreenshots"
+    session = Session(profile_name='bedrock-access')
+    s3_client = session.client('s3', region_name=region)
+
+    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    s3_prefix = f"screenshots/{timestamp}/"
 
     if debug_mode or test_failed:
-        screenshot_dir = "../screenshots"
-        os.makedirs(screenshot_dir, exist_ok=True)
-
         for i, screenshot in enumerate(history.screenshots()):
-            screenshot_path = os.path.join(screenshot_dir, f"screenshot_{i}.png")
-            with open(screenshot_path, "wb") as f:
-                f.write(base64.b64decode(screenshot))
+            screenshot_data = base64.b64decode(screenshot)
+            s3_key = f"{s3_prefix}screenshot_{i}.png"
+
+            s3_client.put_object(
+                Bucket=bucket_name,
+                Key=s3_key,
+                Body=screenshot_data,
+                ContentType="image/png"
+            )
     await browser_session.close()
     endTime = time.time()
     print(f"Time taken: {endTime - startTime} seconds")
