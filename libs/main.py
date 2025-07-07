@@ -170,7 +170,7 @@ async def test_result(params: TestResult):
     if not params.x:
         test_failed = True
 
-    session = Session(profile_name='bedrock-access')
+    session = Session()
     cloudwatch = session.client('cloudwatch', region_name=region)
 
     metric_name = "Failure"
@@ -274,7 +274,7 @@ async def scrolling(params: ScrollingParameters, browser: BrowserContext):
     return ActionResult(extracted_content=logs, include_in_memory=False)
 
 def get_llm(modelID):
-    session = Session(profile_name='bedrock-access')
+    session = Session()
 
     config = Config(
         read_timeout=60*5,
@@ -301,7 +301,7 @@ def get_llm(modelID):
     )
 
 def authentication_open():
-    session = botocore.session.get_session()
+    session = Session(profile_name='auth-access')
     creds = session.get_credentials().get_frozen_credentials()
 
     session_dict = {
@@ -378,7 +378,7 @@ async def main():
     history = await agent.run(max_steps=70)
 
     bucket_name = "aitestscreenshots"
-    session = Session(profile_name='bedrock-access')
+    session = Session()
     s3_client = session.client('s3', region_name=region)
 
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
