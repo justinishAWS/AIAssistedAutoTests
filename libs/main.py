@@ -339,7 +339,8 @@ async def main():
     browser_profile = BrowserProfile(
 		headless=True,
         wait_between_actions=10.0,
-        minimum_wait_page_load_time=10.0
+        minimum_wait_page_load_time=10.0,
+        chromium_sandbox=False
 	)
 
     browser_session = BrowserSession(
