@@ -13,6 +13,7 @@ import botocore.session
 import requests
 import urllib.parse
 import json
+import re
 
 from botocore.config import Config
 from boto3.session import Session
@@ -26,6 +27,7 @@ from dotenv import load_dotenv
 from langchain_core.rate_limiters import InMemoryRateLimiter
 from browser_use.agent.memory import MemoryConfig
 from datetime import datetime
+from pathlib import Path
 
 # Load environment variables
 load_dotenv()
@@ -172,7 +174,7 @@ async def test_result(params: TestResult):
     cloudwatch = session.client('cloudwatch', region_name=region)
 
     metric_name = "Failure"
-    namespace = "AITests"
+    namespace = "AI_Tests"
 
     cloudwatch.put_metric_data(
         Namespace=namespace,
@@ -328,6 +330,10 @@ async def main():
     startTime = time.time()
     # Get test prompt file
     file_path = sys.argv[1]
+    file_name = Path(file_path).name
+    match = re.match(r'test-(.+?)\.script\.md', file_name)
+    test_id = match.group(1) if match else "unknown"
+
     with open(file_path, "r", encoding="utf-8") as file:
         original_task = file.read()
 
@@ -371,12 +377,12 @@ async def main():
 
     history = await agent.run(max_steps=70)
 
-    bucket_name = "aitestsscreenshots"
+    bucket_name = "aitestscreenshots"
     session = Session(profile_name='bedrock-access')
     s3_client = session.client('s3', region_name=region)
 
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    s3_prefix = f"screenshots/{timestamp}/"
+    s3_prefix = f"screenshots/test-{test_id}/{timestamp}/"
 
     if debug_mode or test_failed:
         for i, screenshot in enumerate(history.screenshots()):
