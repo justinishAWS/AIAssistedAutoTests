@@ -5,12 +5,12 @@ from datetime import datetime
 
 def run_tests():
     test_dir = 'tests'
-    selected_tests = ['test-6.script.md', 'test-8.script.md', 'test-9.script.md']
+    selected_tests = ['test-5.script.md', 'test-6.script.md', 'test-8.script.md', 'test-9.script.md', 'test-10.script.md']
 
     for i, script_file in enumerate(selected_tests):
         script_path = os.path.join(test_dir, script_file)
         print(f"[{datetime.now()}] Running test: {script_path}")
-        subprocess.run(['python', 'main.py', script_path])
+        subprocess.run(['python3.11', 'main.py', script_path])
 
         if i < len(selected_tests) - 1:
             print("Waiting 30 seconds before next test.\n")
