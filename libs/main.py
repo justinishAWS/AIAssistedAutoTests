@@ -9,7 +9,6 @@ import base64
 import asyncio
 import os
 import sys
-import botocore.session
 import requests
 import urllib.parse
 import json

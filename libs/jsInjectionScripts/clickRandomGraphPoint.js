@@ -1,15 +1,17 @@
 /**
- * Selectors taken from
- * https://code.amazon.com/packages/PuppetryTests-CloudWatchConsole/blobs/be137a4624e00e12b01edf31b8c5799e5a2cb454/--/src/models/metrics-polaris/metrics-page.js
+ * Selects the random point in the selected metric graph.
+ *
+ * @param {number} chartPosition - Index of the target chart to be selected.
+ * @param {number} checkboxPosition - Index of the legend checkbox to de-select to clearly display the correct line.
+ *
+ * @returns {string} - Confirmation string after JS injection utilized by the Browser Use agent.
  */
 function clickRandomGraphPoint(chartPosition, checkboxPosition) {
   const TRIAGE_CHART_SELECTOR = '[data-testid="triage-chart"]';
   const LEADER_BOARD_DATA_POINT_SELECTOR = "circle.leaderboard-datapoint";
   const EVENT_LAYER_SELECTOR = ".event-layer";
-
   const DATA_POINT_SELECTOR = "circle.datapoint";
   const ALL_DATA_POINT_SELECTOR = "circle.all-datapoint:not(.hidden)";
-
   const IFRAME_SELECTOR = "iframe#microConsole-Pulse";
   const LEGEND_CHECKBOX_SELECTOR = "rect.legend-checkbox";
 
@@ -18,15 +20,14 @@ function clickRandomGraphPoint(chartPosition, checkboxPosition) {
 
   // Get the iFrame
   const iframe = document.querySelector(IFRAME_SELECTOR);
-
   const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
 
+  // Each graph has 2+ lines graphed. To ensure the correct line is selected, we remove the other plot
   const checkboxes = iframeDoc.querySelectorAll(LEGEND_CHECKBOX_SELECTOR);
-
   const checkbox = checkboxes[checkboxPosition]; // TEST PARAM (6)
   const checkboxGroup = checkbox.closest("g.legend.dimmable");
 
-  // Each graph has 2+ lines graphed. To ensure the correct line is selected, we remove the other plot
+  // If this checkbox is not already disabled, we disable it
   if (!checkboxGroup?.classList.contains("legend-disabled")) {
     const checkboxBounds = checkbox.getBoundingClientRect();
     const checkboxHoverX = checkboxBounds.left + checkboxBounds.width / 2;
@@ -56,8 +57,8 @@ function clickRandomGraphPoint(chartPosition, checkboxPosition) {
   // This will query all of the graphs in the iFrame
   const charts = iframeDoc.querySelectorAll(TRIAGE_CHART_SELECTOR);
 
-  // Currently, we know that we want to access the "Faults and Errors" graph on this page, but we should make this a parameter to pass in
-  const chart = charts[chartPosition]; // PARAM (2)
+  // Select the specific chart
+  const chart = charts[chartPosition];
 
   // Get the <rect> element within this chart. This will help us hover over the dynamic part
   const eventLayer = chart.querySelector(EVENT_LAYER_SELECTOR);
@@ -127,6 +128,13 @@ function clickRandomGraphPoint(chartPosition, checkboxPosition) {
     }
   });
 
+  /**
+   * Waits for the chart to populate all data points and returns a random element.
+   *
+   * Retries MAX_RETRIES times to account for rendering delays.
+   *
+   * @returns {Promise<Element|null>} - A random SVG circle element, or null if none found.
+   */
   async function waitForRandomDatapoint() {
     for (let i = 0; i < MAX_RETRIES; i++) {
       // Find all <circle> datapoints in line graph
@@ -144,9 +152,14 @@ function clickRandomGraphPoint(chartPosition, checkboxPosition) {
     return null;
   }
 
-  /*
-   * Mimic logic from Console team:
-   * https://code.amazon.com/packages/CloudWatchConsole-ApplicationMonitoringTests/blobs/4cea84c2b68bccc4ca05269b23223004798db39f/--/src/selectors/triage/charts.ts#L233
+  /**
+   * Simulates a full mouse click (mousedown → mouseup → click) on the provided data point.
+   * Will retry if the point is not found, has invalid coordinates, or fails to open a valid popup.
+   *
+   * Reference: Console team code (https://code.amazon.com/packages/CloudWatchConsole-ApplicationMonitoringTests/blobs/4cea84c2b68bccc4ca05269b23223004798db39f/--/src/selectors/triage/charts.ts#L233)
+   *
+   * @param {string} selector - CSS selector (DATA_POINT_SELECTOR) to identify the SVG circle to click.
+   * @returns {Promise<void>}
    */
   async function clickDataPoint(selector) {
     for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {

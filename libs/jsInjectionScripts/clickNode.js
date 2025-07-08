@@ -1,8 +1,17 @@
+/**
+ * Clicks a specific node inside the Service Map
+ *
+ * @param {string} testid - The value of the 'data-testid' element for the node
+ *
+ * @returns {string} - Confirmation string after JS injection utilized by the Browser Use agent.
+ */
 function clickNode(testid) {
+  // Get the iFrame
   const iframe = document.querySelector(`iframe#microConsole-Pulse`);
   const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
 
   setTimeout(() => {
+    // Get the node
     const node = iframeDoc.querySelector(`g[data-testid="${testid}"]`);
     if (node) {
       const nodeBounds = node.getBoundingClientRect();
@@ -29,7 +38,7 @@ function clickNode(testid) {
 
       node.dispatchEvent(nodeClickEvent);
     } else {
-      return "JavaScript not injected. Try again."
+      return "JavaScript not injected. Try again.";
     }
   }, 1000);
 
