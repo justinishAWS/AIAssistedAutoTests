@@ -33,6 +33,9 @@ load_dotenv()
 region = os.environ['AWS_REGION']
 account_id = os.environ['AWS_ACCOUNT_ID']
 debug_mode = os.environ['DEBUG_MODE'].lower() == 'true'
+bucket_name = os.environ['S3_BUCKET_NAME']
+cloudwatch_namespace = os.environ['CLOUDWATCH_NAMESPACE']
+
 test_failed = False
 
 model_id = "us.anthropic.claude-3-7-sonnet-20250219-v1:0"
@@ -173,10 +176,9 @@ async def test_result(params: TestResult):
     cloudwatch = session.client('cloudwatch', region_name=region)
 
     metric_name = "Failure"
-    namespace = "AI_Tests"
 
     cloudwatch.put_metric_data(
-        Namespace=namespace,
+        Namespace=cloudwatch_namespace,
         MetricData=[
             {
                 "MetricName": metric_name,
@@ -194,7 +196,7 @@ async def test_result(params: TestResult):
             }
         ]
     )
-    print(f"Published metric: {metric_name} in namespace {namespace} as {'0.0' if params.x else '1.0'}")
+    print(f"Published metric: {metric_name} in namespace {cloudwatch_namespace} as {'0.0' if params.x else '1.0'}")
     return ActionResult(extracted_content="The task is COMPLETE - you can EXIT now. DO NOT conduct anymore steps!!!", is_done=True)
 
 
@@ -376,7 +378,6 @@ async def main():
 
     history = await agent.run(max_steps=70)
 
-    bucket_name = "aitestscreenshots"
     session = Session()
     s3_client = session.client('s3', region_name=region)
 

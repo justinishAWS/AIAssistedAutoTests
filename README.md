@@ -23,6 +23,8 @@ To run this project, create a `.env` file in the root directory based on the pro
 AWS_REGION=<REGION>
 AWS_ACCOUNT_ID=<ACCOUNT_ID>
 DEBUG_MODE=<True/False>
+S3_BUCKET_NAME=<S3 Bucket Name to store test results>
+CLOUDWATCH_NAMESPACE=<CloudWatch namespace to publish metrics>
 ```
 
 **Note:** The `AWS_ACCOUNT_ID` and `AWS_REGION` should be the ID and region for the account used in Step 3 from "Quick Start".
