@@ -2,6 +2,12 @@ import os
 import subprocess
 import time
 from datetime import datetime
+from dotenv import load_dotenv
+
+load_dotenv()
+auth_access_account_id = os.environ['AUTH_ACCESS_ACCOUNT_ID']
+auth_access_role_id = os.environ['AUTH_ACCESS_ROLE_ID']
+interval_duration = int(os.environ['INTERVAL_DURATION'])
 
 def run_tests():
     test_dir = 'tests'
@@ -20,11 +26,11 @@ def run_tests():
             time.sleep(30)
 
 def assume_role():
-    cmd = """
+    cmd = f"""
         export AWS_SHARED_CREDENTIALS_FILE=~/auth-access-creds
 
         aws sts assume-role \
-        --role-arn arn:aws:iam::140023401067:role/AITestRole \
+        --role-arn arn:aws:iam::{auth_access_account_id}:role/{auth_access_role_id} \
         --role-session-name auth-session \
         --duration-seconds 43200 \
         --output json | jq -r '.Credentials |
@@ -42,8 +48,8 @@ def main():
         print(f"[{datetime.now()}] Starting test run loop")
         assume_role()
         run_tests()
-        print(f"[{datetime.now()}] Test run complete. Waiting 8 hours.\n")
-        time.sleep(60 * 60 * 8)  # wait 8 hours
+        print(f"[{datetime.now()}] Test run complete. Waiting {interval_duration} seconds.\n")
+        time.sleep(interval_duration)  # Wait 'interval_duration' seconds until running the tests again
 
 if __name__ == '__main__':
     main()
