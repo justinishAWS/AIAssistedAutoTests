@@ -32,7 +32,6 @@ def assume_role():
         aws sts assume-role \
         --role-arn arn:aws:iam::{auth_access_account_id}:role/{auth_access_role_id} \
         --role-session-name auth-session \
-        --duration-seconds 43200 \
         --output json | jq -r '.Credentials |
             "[auth-access]",
             "aws_access_key_id = " + .AccessKeyId,
