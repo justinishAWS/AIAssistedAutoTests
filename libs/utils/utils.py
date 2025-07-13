@@ -112,7 +112,7 @@ def publish_metric(result, test_id, session):
             }
         ]
     )
-    print(f"Published metric: {metric_name} in namespace {cloudwatch_namespace} as {'0.0' if not result else '1.0'}")
+    print(f"Published metric: {metric_name} in namespace {cloudwatch_namespace} as {'0.0' if not result else '1.0'}", flush=True)
 
 def upload_s3(screenshots, test_id, session):
     """

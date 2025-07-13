@@ -256,8 +256,7 @@ async def main():
     # Create prompt
     task = prefix + original_task + end
 
-    for i in range(2):
-        print("This is test", i)
+    while True:
         global test_failed
         test_failed = False
 
@@ -307,7 +306,7 @@ async def main():
 
         history = await agent.run(max_steps=70)
 
-        print("HERE1.5")
+        print("HERE1.5", flush=True)
 
         session = Session()
 
@@ -318,13 +317,13 @@ async def main():
         if debug_mode or test_failed:
             upload_s3(history.screenshots(), test_id, session)
 
-        print("HERE4")
+        print("HERE4", flush=True)
         await browser_session.close()
         endTime = time.time()
-        print(f"Time taken: {endTime - startTime} seconds")
+        print(f"Time taken: {endTime - startTime} seconds", flush=True)
 
-        print(f"[{datetime.now()}] Test run complete. Waiting {interval_duration} seconds.\n")
-        time.sleep(interval_duration) # Wait 'interval_duration' seconds until running the tests again
+        print(f"[{datetime.now()}] Test run complete. Waiting {interval_duration} seconds.\n", flush=True)
+        await asyncio.sleep(interval_duration) # Wait 'interval_duration' seconds until running the tests again
 
 
 asyncio.run(main())
