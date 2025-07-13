@@ -28,6 +28,7 @@ from utils.utils import *
 # Load environment variables
 load_dotenv()
 debug_mode = os.environ['DEBUG_MODE'].lower() == 'true'
+interval_duration = int(os.environ['INTERVAL_DURATION'])
 
 test_failed = False
 
@@ -255,62 +256,69 @@ async def main():
     # Create prompt
     task = prefix + original_task + end
 
-    # Get LLM model
-    llm = get_llm(model_id)
+    while True:
+        print(f"[{datetime.now()}] Starting test run loop")
 
-    # Generate federated AWS link
-    authenticated_url = authentication_open()
+        # Get LLM model
+        llm = get_llm(model_id)
 
-    unique_profile_path = Path.home() / f".config/browseruse/profiles/{uuid4().hex[:8]}"
+        # Generate federated AWS link
+        authenticated_url = authentication_open()
 
-    browser_profile = BrowserProfile(
-        user_data_dir=unique_profile_path,
-		headless=True,
-        wait_between_actions=10.0,
-        minimum_wait_page_load_time=10.0,
-        chromium_sandbox=False
-	)
+        unique_profile_path = Path.home() / f".config/browseruse/profiles/{uuid4().hex[:8]}"
 
-    browser_session = BrowserSession(
-        browser_profile=browser_profile,
-        viewport={'width': 2560, 'height': 1440},
-    )
+        browser_profile = BrowserProfile(
+            user_data_dir=unique_profile_path,
+            headless=True,
+            wait_between_actions=10.0,
+            minimum_wait_page_load_time=10.0,
+            chromium_sandbox=False
+        )
 
-    # We do not need the LLM to generate the URL, so conduct this step before initialization
-    initial_actions = [
-        {'open_tab': {'url': authenticated_url}}
-    ]
+        browser_session = BrowserSession(
+            browser_profile=browser_profile,
+            viewport={'width': 2560, 'height': 1440},
+        )
 
-    agent = Agent(
-        task=task,
-        initial_actions=initial_actions,
-        llm=llm,
-        controller=controller,
-        browser_session=browser_session,
-        validate_output=True,
-        extend_system_message="""REMEMBER it is ok if the test fails. When the test result is determined, DO NOT continue steps!!! JUST EXIT!!!""",
-        enable_memory=False,
-        # memory_config=MemoryConfig(
-        #     llm_instance=llm,
-        #     agent_id="my_custom_agent",
-        #     memory_interval=30
-        # ),
-    )
+        # We do not need the LLM to generate the URL, so conduct this step before initialization
+        initial_actions = [
+            {'open_tab': {'url': authenticated_url}}
+        ]
 
-    # Run the agent to conduce the test
-    history = await agent.run(max_steps=70)
+        agent = Agent(
+            task=task,
+            initial_actions=initial_actions,
+            llm=llm,
+            controller=controller,
+            browser_session=browser_session,
+            validate_output=True,
+            extend_system_message="""REMEMBER it is ok if the test fails. When the test result is determined, DO NOT continue steps!!! JUST EXIT!!!""",
+            enable_memory=False,
+            # memory_config=MemoryConfig(
+            #     llm_instance=llm,
+            #     agent_id="my_custom_agent",
+            #     memory_interval=30
+            # ),
+        )
 
-    session = Session()
+        # Run the agent to conduce the test
+        history = await agent.run(max_steps=70)
 
-    # Publish a metric to CloudWatch for the test
-    publish_metric(test_failed, test_id, session)
+        session = Session()
 
-    # If debug_mode is True or this test failed, save the screenshots to S3
-    if debug_mode or test_failed:
-        upload_s3(history.screenshots(), test_id, session)
+        # Publish a metric to CloudWatch for the test
+        publish_metric(test_failed, test_id, session)
 
-    await browser_session.close()
-    endTime = time.time()
-    print(f"Time taken: {endTime - startTime} seconds")
+        # If debug_mode is True or this test failed, save the screenshots to S3
+        if debug_mode or test_failed:
+            upload_s3(history.screenshots(), test_id, session)
+
+        await browser_session.close()
+        endTime = time.time()
+        print(f"Time taken: {endTime - startTime} seconds")
+
+        print(f"[{datetime.now()}] Test run complete. Waiting {interval_duration} seconds.\n")
+        await asyncio.sleep(interval_duration) # Wait 'interval_duration' seconds until running the tests again
+
 
 asyncio.run(main())
