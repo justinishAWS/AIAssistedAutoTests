@@ -3,6 +3,7 @@ import urllib.parse
 import json
 import requests
 import base64
+import subprocess
 
 from boto3.session import Session
 from langchain_aws import ChatBedrockConverse
@@ -10,6 +11,8 @@ from botocore.config import Config
 from botocore.exceptions import ClientError
 from datetime import datetime
 from dotenv import load_dotenv
+from botocore.session import Session as BotoCoreSession
+from boto3 import Session as Boto3Session
 
 # Load environment variables
 load_dotenv()
@@ -53,7 +56,7 @@ def authentication_open():
     Returns:
         str: URL providing federated access to the AWS Console
     """
-    session = Session(profile_name='auth-access')
+    session = assume_cross_account_role()
     creds = session.get_credentials().get_frozen_credentials()
 
     session_dict = {
@@ -143,3 +146,27 @@ def upload_s3(screenshots, test_id, session):
             Body=screenshot_data,
             ContentType="image/png"
         )
+
+def assume_cross_account_role():
+    account_id = os.environ.get("AUTH_ACCESS_ACCOUNT_ID")
+    role_name = os.environ.get("AUTH_ACCESS_ROLE_ID")
+    role_arn = f"arn:aws:iam::{account_id}:role/{role_name}"
+
+    cmd = [
+        "aws", "sts", "assume-role",
+        "--role-arn", role_arn,
+        "--role-session-name", "auth-session",
+        "--output", "json"
+    ]
+
+    result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+    creds = json.loads(result.stdout)["Credentials"]
+
+    # Return a boto3 session with assumed credentials
+    session = Boto3Session(
+        aws_access_key_id=creds["AccessKeyId"],
+        aws_secret_access_key=creds["SecretAccessKey"],
+        aws_session_token=creds["SessionToken"]
+    )
+
+    return session
