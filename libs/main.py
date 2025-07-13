@@ -256,7 +256,8 @@ async def main():
     # Create prompt
     task = prefix + original_task + end
 
-    while True:
+    for i in range(2):
+        print("This is test", i)
         global test_failed
         test_failed = False
 
@@ -304,36 +305,18 @@ async def main():
             # ),
         )
 
-        # Run the agent to conduce the test
-        print("TESTING")
-        try:
-            print("TESTING")
-            history = await agent.run(max_steps=70)
-            print("HERE1")
-        except Exception as e:
-            print(f"[{datetime.now()}] ❌ ERROR during agent run: {e}", flush=True)
-            return  # or exit gracefully
+        history = await agent.run(max_steps=70)
 
         print("HERE1.5")
 
         session = Session()
 
         # Publish a metric to CloudWatch for the test
-        # publish_metric(test_failed, test_id, session)
-        try:
-            print("HERE2")
-            publish_metric(test_failed, test_id, session)
-        except Exception as e:
-            print(f"[{datetime.now()}] ❌ ERROR in publish_metric: {e}", flush=True)
+        publish_metric(test_failed, test_id, session)
 
         # If debug_mode is True or this test failed, save the screenshots to S3
         if debug_mode or test_failed:
-            try:
-                print("HERE3")
-                upload_s3(history.screenshots(), test_id, session)
-            except Exception as e:
-                print(f"[{datetime.now()}] ❌ ERROR in upload_s3: {e}", flush=True)
-            #upload_s3(history.screenshots(), test_id, session)
+            upload_s3(history.screenshots(), test_id, session)
 
         print("HERE4")
         await browser_session.close()
@@ -341,7 +324,7 @@ async def main():
         print(f"Time taken: {endTime - startTime} seconds")
 
         print(f"[{datetime.now()}] Test run complete. Waiting {interval_duration} seconds.\n")
-        await asyncio.sleep(interval_duration) # Wait 'interval_duration' seconds until running the tests again
+        time.sleep(interval_duration) # Wait 'interval_duration' seconds until running the tests again
 
 
 asyncio.run(main())
