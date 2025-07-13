@@ -306,12 +306,14 @@ async def main():
 
         # Run the agent to conduce the test
         history = await agent.run(max_steps=70)
+        print("HERE1")
 
         session = Session()
 
         # Publish a metric to CloudWatch for the test
         # publish_metric(test_failed, test_id, session)
         try:
+            print("HERE2")
             publish_metric(test_failed, test_id, session)
         except Exception as e:
             print(f"[{datetime.now()}] ❌ ERROR in publish_metric: {e}", flush=True)
@@ -319,11 +321,13 @@ async def main():
         # If debug_mode is True or this test failed, save the screenshots to S3
         if debug_mode or test_failed:
             try:
+                print("HERE3")
                 upload_s3(history.screenshots(), test_id, session)
             except Exception as e:
                 print(f"[{datetime.now()}] ❌ ERROR in upload_s3: {e}", flush=True)
             #upload_s3(history.screenshots(), test_id, session)
 
+        print("HERE4")
         await browser_session.close()
         endTime = time.time()
         print(f"Time taken: {endTime - startTime} seconds")
