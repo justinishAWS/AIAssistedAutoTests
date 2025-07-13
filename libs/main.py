@@ -305,6 +305,7 @@ async def main():
         )
 
         # Run the agent to conduce the test
+        print("TESTING")
         history = await agent.run(max_steps=70)
         print("HERE1")
 
