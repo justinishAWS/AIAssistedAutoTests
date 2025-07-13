@@ -306,8 +306,15 @@ async def main():
 
         # Run the agent to conduce the test
         print("TESTING")
-        history = await agent.run(max_steps=70)
-        print("HERE1")
+        try:
+            print("TESTING")
+            history = await agent.run(max_steps=70)
+            print("HERE1")
+        except Exception as e:
+            print(f"[{datetime.now()}] ❌ ERROR during agent run: {e}", flush=True)
+            return  # or exit gracefully
+
+        print("HERE1.5")
 
         session = Session()
 
