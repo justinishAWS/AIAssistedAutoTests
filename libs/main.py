@@ -257,6 +257,9 @@ async def main():
     task = prefix + original_task + end
 
     while True:
+        global test_failed
+        test_failed = False
+
         print(f"[{datetime.now()}] Starting test run loop")
 
         # Get LLM model
@@ -307,11 +310,19 @@ async def main():
         session = Session()
 
         # Publish a metric to CloudWatch for the test
-        publish_metric(test_failed, test_id, session)
+        # publish_metric(test_failed, test_id, session)
+        try:
+            publish_metric(test_failed, test_id, session)
+        except Exception as e:
+            print(f"[{datetime.now()}] ❌ ERROR in publish_metric: {e}", flush=True)
 
         # If debug_mode is True or this test failed, save the screenshots to S3
         if debug_mode or test_failed:
-            upload_s3(history.screenshots(), test_id, session)
+            try:
+                upload_s3(history.screenshots(), test_id, session)
+            except Exception as e:
+                print(f"[{datetime.now()}] ❌ ERROR in upload_s3: {e}", flush=True)
+            #upload_s3(history.screenshots(), test_id, session)
 
         await browser_session.close()
         endTime = time.time()
