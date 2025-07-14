@@ -30,19 +30,12 @@ Access the graph and open the popup, PASS in 1 and 2 as a PARAMETERS. Then wait 
 **Constraints:**
 - You MUST pass in parameters 1 and 2
 
-### 7. Click the hexadecimal string
+### 7. Select the blue hexadecimal
 
-In the right panel, locate and click the first <a> tag that satisfies ALL of the following:
-
-- Tag check: The element must be an actual <a> HTML tag in the DOM (not visually inferred).
-- Attribute check: The aria-label must start with "Trace details for trace " and end with a valid 32-character lowercase hexadecimal string.
-- Text check: The inner text of the <a> must exactly match the hexadecimal string found at the end of the aria-label.
-- Index check: Log the exact index of the matching element (e.g., index [145]). Only click if all of the above conditions are satisfied.
+Select the blue hexadecimal
 
 **Constraints:**
-- DO NOT rely on visual layout or placement
-- DO NOT click any adjacent or surrounding <button> or <div> elements
-- Use the actual HTML tag and attribute inspection from the DOM to determine correctness
+- You MUST use the click_hexadecimal() function.
 
 ### 8. Scroll injection down
 

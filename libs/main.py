@@ -241,6 +241,25 @@ async def scrolling(params: ScrollingParameters, browser: BrowserContext):
         """, args)
     return ActionResult(extracted_content=logs, include_in_memory=False)
 
+@controller.action(
+    'Select the blue hexadecimal'
+)
+async def click_hexadecimal(browser: BrowserContext):
+    page = await browser.get_current_page()
+
+    js_file_path = os.path.join(os.path.dirname(
+        __file__), "jsInjectionScripts", "clickHexadecimal.js")
+    with open(js_file_path, 'r') as file:
+        js_code = file.read()
+
+    logs = await page.evaluate(f"""
+        () => {{
+            {js_code}
+            return clickHexadecimal();
+        }}
+        """)
+    return ActionResult(extracted_content=logs, include_in_memory=False)
+
 async def main():
     startTime = time.time()
 
