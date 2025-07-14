@@ -261,8 +261,6 @@ async def click_hexadecimal(browser: BrowserContext):
     return ActionResult(extracted_content=logs, include_in_memory=False)
 
 async def main():
-    startTime = time.time()
-
     # Get test prompt file
     file_path = sys.argv[1]
     file_name = Path(file_path).name
@@ -276,10 +274,10 @@ async def main():
     task = prefix + original_task + end
 
     while True:
+        startTime = time.time()
+
         global test_failed
         test_failed = False
-
-        print(f"[{datetime.now()}] Starting test run loop")
 
         # Get LLM model
         llm = get_llm(model_id)
@@ -325,8 +323,6 @@ async def main():
 
         history = await agent.run(max_steps=70)
 
-        print("HERE1.5", flush=True)
-
         session = Session()
 
         # Publish a metric to CloudWatch for the test
@@ -336,7 +332,6 @@ async def main():
         if debug_mode or test_failed:
             upload_s3(history.screenshots(), test_id, session)
 
-        print("HERE4", flush=True)
         await browser_session.close()
         endTime = time.time()
         print(f"Time taken: {endTime - startTime} seconds", flush=True)
