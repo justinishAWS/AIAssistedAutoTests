@@ -134,7 +134,7 @@ def upload_s3(screenshots, test_id, session):
         s3_client.create_bucket(Bucket=bucket_name)
 
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    s3_prefix = f"screenshots/test-{test_id}/{timestamp}/"
+    s3_prefix = f"screenshots/{test_id}/{timestamp}/"
 
     for i, screenshot in enumerate(screenshots):
         screenshot_data = base64.b64decode(screenshot)
@@ -148,6 +148,12 @@ def upload_s3(screenshots, test_id, session):
         )
 
 def assume_cross_account_role():
+    """
+    Assumes an IAM role in a different AWS account
+
+    Returns:
+        Session: boto3 session with temporary credentials for the assumed role
+    """
     account_id = os.environ.get("AUTH_ACCESS_ACCOUNT_ID")
     role_name = os.environ.get("AUTH_ACCESS_ROLE_ID")
     role_arn = f"arn:aws:iam::{account_id}:role/{role_name}"
@@ -170,3 +176,40 @@ def assume_cross_account_role():
     )
 
     return session
+
+async def evaluate_js(
+        page,
+        js_file: str,
+        function_call: str,
+        args: dict = None,
+        is_async: bool = False
+    ):
+    """
+    Evaluates JavaScript code for tests from ./jsInjectionScripts
+
+    Args:
+        page: Browser Use page object to evaluate the script on
+        js_file (str): Name of the JavaScript file in ./jsInjectionScripts to run
+        function_call (str): JavaScript function call to execute after the script is injected
+        args (dict, optional): Dictionary of arguments to pass into the JavaScript function. Defaults to None
+        is_async (bool, optional): Whether the JavaScript function is asynchronous. Defaults to False
+
+    Returns:
+        Any: Result returned by the JavaScript function
+    """
+    js_file_path = os.path.join(os.path.dirname(
+        __file__), "..", "jsInjectionScripts", js_file)
+    with open(js_file_path, 'r') as file:
+        js_code = file.read()
+
+    js_args = args or {}
+    arg_string = "args" if js_args else ""
+
+    wrapper = "async" if is_async else ""
+
+    return await page.evaluate(f"""
+        {wrapper} ({arg_string}) => {{
+            {js_code}
+            return {"await " if is_async else ""}{function_call};
+        }}
+        """, js_args)
