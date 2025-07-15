@@ -32,7 +32,7 @@ async function checkAllPointAboveThreshold(
   const ANNOTATION_LINE_SELECTOR = "line.annotation-line";
 
   const MAX_RETRIES = 10;
-  const RETRY_DELAY = 500;
+  const RETRY_DELAY = 500; // milliseconds (ms)
 
   // Get the iFrame
   const iframe = document.querySelector(IFRAME_SELECTOR);
