@@ -9,7 +9,7 @@
  * 5. Hover over the leaderboard datapoint to make all datapoints visible
  * 6. Return a random point in the metric graph
  * 7. Click the returned datapoint
- * 
+ *
  * @param {number} chartPosition - Index of the target chart to be selected.
  * @param {number} checkboxPosition - Index of the legend checkbox to de-select to clearly display the correct line.
  *
@@ -42,25 +42,31 @@ function clickRandomGraphPoint(chartPosition, checkboxPosition) {
     const checkboxHoverX = checkboxBounds.left + checkboxBounds.width / 2;
     const checkboxHoverY = checkboxBounds.top + checkboxBounds.height / 2;
 
-    const checkboxHoverEvent = new MouseEvent("mousemove", {
-      clientX: checkboxHoverX,
-      clientY: checkboxHoverY,
-      bubbles: true,
-      cancelable: true,
-      view: window,
-    });
+    for (let i = 0; i < MAX_RETRIES; i++) {
+      const checkboxHoverEvent = new MouseEvent("mousemove", {
+        clientX: checkboxHoverX,
+        clientY: checkboxHoverY,
+        bubbles: true,
+        cancelable: true,
+        view: window,
+      });
 
-    checkbox.dispatchEvent(checkboxHoverEvent);
+      checkbox.dispatchEvent(checkboxHoverEvent);
 
-    const checkboxClickEvent = new MouseEvent("click", {
-      clientX: checkboxHoverX,
-      clientY: checkboxHoverY,
-      bubbles: true,
-      cancelable: true,
-      view: window,
-    });
+      const checkboxClickEvent = new MouseEvent("click", {
+        clientX: checkboxHoverX,
+        clientY: checkboxHoverY,
+        bubbles: true,
+        cancelable: true,
+        view: window,
+      });
 
-    checkbox.dispatchEvent(checkboxClickEvent);
+      checkbox.dispatchEvent(checkboxClickEvent);
+
+      if (checkboxGroup?.classList.contains("legend-disabled")) {
+        break;
+      }
+    }
   }
 
   // This will query all of the graphs in the iFrame
