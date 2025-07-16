@@ -127,11 +127,12 @@ def upload_s3(screenshots, test_id, session):
         None
     """
     s3_client = session.client('s3', region_name=region)
+    unique_bucket_name = f"{bucket_name}-{account_id}-{region}".lower()
 
     try:
-        s3_client.head_bucket(Bucket=bucket_name)
+        s3_client.head_bucket(Bucket=unique_bucket_name)
     except ClientError as e:
-        s3_client.create_bucket(Bucket=bucket_name)
+        s3_client.create_bucket(Bucket=unique_bucket_name)
 
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     s3_prefix = f"screenshots/{test_id}/{timestamp}/"
@@ -141,7 +142,7 @@ def upload_s3(screenshots, test_id, session):
         s3_key = f"{s3_prefix}screenshot_{i}.png"
 
         s3_client.put_object(
-            Bucket=bucket_name,
+            Bucket=unique_bucket_name,
             Key=s3_key,
             Body=screenshot_data,
             ContentType="image/png"

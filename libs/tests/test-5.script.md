@@ -19,16 +19,16 @@ Click the 'Name' hyperlink 'TicketingSystem' in the 'Services' list in the main 
 
 Click the 'Service operations' button.
 
-### 5. Search for 'Name = TicketingSystem/FunctionHandlers'
+### 5. Search for 'Name = TicketingSystem/FunctionHandler'
 
 In the search field under 'Service operations' type 'Name = TicketingSystem/FunctionHandler' and PRESS Enter.
 
-### 6. Access the graph and open the popup.
+### 6. Access a random graph point.
 
-Access the graph and open the popup, PASS in 1 and 2 as a PARAMETERS. Then wait a few seconds.
+Access a random graph point, PASS in 1 and 4 as a PARAMETERS. Then wait a few seconds.
 
 **Constraints:**
-- You MUST pass in parameters 1 and 2
+- You MUST pass in parameters 1 and 4
 
 ### 7. Select the blue hexadecimal
 

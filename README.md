@@ -21,14 +21,14 @@ AWS_ACCOUNT_ID=<Account ID for default account>
 DEBUG_MODE=<True/False>
 S3_BUCKET_NAME=<S3 Bucket Name to store test results>
 CLOUDWATCH_NAMESPACE=<CloudWatch namespace to publish metrics>
-INTERVAL_DURATION=<Interval to wait between each test run (seconds)>
 AUTH_ACCESS_ACCOUNT_ID=<Account ID for auth-access>
 AUTH_ACCESS_ROLE_ID=<Role name in auth-access account (used to assume role)>
+HEADLESS_MODE=<True/False>
 ```
 
 ## Debugging
 
-If you want to view the visual browser UI, comment out the line `headless=True` in the `Browser` object.
+If you want to view the visual browser UI, set your `HEADLESS_MODE` variable in `.env` to `False`: `HEADLESS_MODE=False`
 
 To debug in headless mode to save screenshots of each step to your directory, update your `DEBUG_MODE` variable in `.env` to `True`:
 `DEBUG_MODE=True`

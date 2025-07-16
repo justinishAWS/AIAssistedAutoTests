@@ -28,7 +28,7 @@ from utils.utils import *
 # Load environment variables
 load_dotenv()
 debug_mode = os.environ['DEBUG_MODE'].lower() == 'true'
-interval_duration = int(os.environ['INTERVAL_DURATION'])
+headless_mode = os.environ['HEADLESS_MODE'].lower() == 'true'
 
 test_failed = False
 
@@ -217,7 +217,7 @@ async def main():
 
     browser_profile = BrowserProfile(
         user_data_dir=unique_profile_path,
-        headless=True,
+        headless=headless_mode,
         wait_between_actions=10.0,
         minimum_wait_page_load_time=10.0,
         chromium_sandbox=False
