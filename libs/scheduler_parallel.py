@@ -18,6 +18,7 @@ def run_test(script_file, test_dir):
     script_path = os.path.join(test_dir, script_file)
     print(f"[{datetime.now()}] Running test: {script_path}")
     result = subprocess.run(['python3.11', 'main.py', script_path], env=env)
+    # save output
     return script_file, result.returncode
 
 def run_tests_parallel():

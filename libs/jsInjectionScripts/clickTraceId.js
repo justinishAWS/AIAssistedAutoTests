@@ -8,7 +8,7 @@
  *
  * @returns {string} - Confirmation string after JS injection utilized by the Browser Use agent.
  */
-function clickHexadecimal() {
+function clickTraceId() {
   const iframeDoc =
     document.querySelector("#microConsole-Pulse")?.contentDocument ||
     document.querySelector("#microConsole-Pulse")?.contentWindow?.document;
