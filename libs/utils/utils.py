@@ -16,10 +16,11 @@ from boto3 import Session as Boto3Session
 
 # Load environment variables
 load_dotenv()
-region = os.environ['AWS_REGION']
-account_id = os.environ['AWS_ACCOUNT_ID']
+region = os.environ['DEFAULT_ACCOUNT_AWS_REGION']
+account_id = os.environ['DEFAULT_AWS_ACCOUNT_ID']
 cloudwatch_namespace = os.environ['CLOUDWATCH_NAMESPACE']
 bucket_name = os.environ['S3_BUCKET_NAME_PREFIX']
+manual_mode = os.environ['MANUAL_MODE'].lower() == 'true'
 
 def get_llm(modelID):
     """
@@ -56,7 +57,7 @@ def authentication_open():
     Returns:
         str: URL providing federated access to the AWS Console
     """
-    session = assume_cross_account_role()
+    session = assume_cross_account_role() if not manual_mode else Session(profile_name='auth-access')
     creds = session.get_credentials().get_frozen_credentials()
 
     session_dict = {
@@ -155,8 +156,8 @@ def assume_cross_account_role():
     Returns:
         Session: boto3 session with temporary credentials for the assumed role
     """
-    account_id = os.environ.get("AUTH_ACCESS_ACCOUNT_ID")
-    role_name = os.environ.get("AUTH_ACCESS_ROLE_ID")
+    account_id = os.environ.get("DEMO_AWS_ACCOUNT_ID")
+    role_name = os.environ.get("DEMO_ROLE_ID")
     role_arn = f"arn:aws:iam::{account_id}:role/{role_name}"
 
     cmd = [
